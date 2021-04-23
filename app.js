@@ -3,6 +3,8 @@ const app = express();
 const path = require('path');
 const methodOverride = require('method-override');
 
+const db = require('./dbhandler');
+
 const EventManager = require('./models/eventManager');
 const EventHall = require('./models/eventHall');
 
@@ -67,7 +69,22 @@ app.get('/logout', (req, res) => {
     res.redirect('/');
 });
 
+
 /*
+
+async function operateOnDB() {
+    await db.connect('eventBusiness');
+
+    let manager = new EventManager({ fname: 'Ram', lname: 'Jethmalani', email: 'ramj@ymail.com', aadhaar: '548648389383', phone: 9876543210 });
+    await db.save(manager);
+
+    await db.drop(EventManager);
+
+    db.close();
+}
+
+operateOnDB();
+
 
 app.get('/search', (req, res) => {
     if (req.query.id && req.query.name) {
