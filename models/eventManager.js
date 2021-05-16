@@ -28,6 +28,12 @@ const eventManagerSchema = mongoose.Schema({
         unique: true,
         validate: [aadhaarvValidator.isValidNumber, 'Please enter your valid aadhaar number.']
     },
+    pan: {
+        type: String,
+        maxLength: 10,
+        required: true,
+        unique: true
+    },
     phone: {
         type: Number,
         maxLength: 10,

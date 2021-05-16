@@ -36,26 +36,30 @@
                                             <p class="text-primary m-0 font-weight-bold">About Hall Owner / Manager</p>
                                         </div>
                                         <div class="card-body">
-                                            <form>
+                                            <form method="POST" action="/profile?form=1">
                                                 <div class="form-row">
                                                     <div class="col">
-                                                        <div class="form-group"><label for="first_name"><strong>First Name</strong></label><input class="form-control" type="text" id="first_name" placeholder="Ram" name="first_name"></div>
+                                                        <div class="form-group"><label for="first_name"><strong>First Name</strong></label><input class="form-control" type="text" id="first_name" placeholder="Meher" name="first_name" value="<%= rel1.fname %>"></div>
                                                     </div>
                                                     <div class="col">
-                                                        <div class="form-group"><label for="last_name"><strong>Last Name</strong></label><input class="form-control" type="text" id="last_name" placeholder="Mallik" name="last_name"></div>
+                                                        <div class="form-group"><label for="last_name"><strong>Last Name</strong></label><input class="form-control" type="text" id="last_name" placeholder="Anand" name="last_name" value="<%= rel1.lname %>"></div>
                                                     </div>
                                                 </div>
                                                 <div class="form-row">
                                                     <div class="col">
                                                         <div class="form-group"><label for="email"><strong>Email Address</strong></label><input class="form-control"
-                                                                type="email" id="email" placeholder="user@example.com" name="email"></div>
+                                                                type="email" id="email" placeholder="user@example.com" name="email" value="<%= rel1.email %>"></div>
                                                     </div>
                                                     <div class="col">
-                                                        <div class="form-group"><label for="phone"><strong>Phone Number</strong></label><input class="form-control" type="tel" id="phone" name="phone" placeholder="9999900000"></div>
+                                                        <div class="form-group"><label for="phone"><strong>Phone Number</strong></label><input class="form-control" type="tel" id="phone" name="phone" placeholder="9999900000" value="<%= rel1.phone %>"></div>
                                                     </div>
                                                 </div>
                                                 <div class="form-group">
-                                                    <label for="aadhaar_num"><strong>Aadhaar Number</strong></label><input class="form-control" type="text" id="aadhaar_num" name="aadhaar_num" minlength="12" maxlength="12" placeholder="123456789123">
+                                                    <label for="aadhaar_num"><strong>Aadhaar Number</strong></label><input class="form-control" type="text" id="aadhaar_num" name="aadhaar_num" minlength="12" maxlength="12" placeholder="123456789123" value="<%= rel1.aadhaar %>"">
+                                                </div>
+                                                <div class="form-group">
+                                                    <label for="pan_num"><strong>PAN Number</strong></label><input class="form-control" type="text"
+                                                        id="pan_num" name="pan_num" minlength="10" maxlength="10" placeholder="ABCDE1234F" value="<%= rel1.pan %>">
                                                 </div>
                                                 <div class="form-group"><button class="btn btn-primary btn-sm" type="submit">Save Settings</button></div>
                                             </form>
@@ -69,17 +73,17 @@
                                             <p class="text-primary m-0 font-weight-bold">About Hall Location</p>
                                         </div>
                                         <div class="card-body">
-                                            <form>
-                                                <div class="form-group"><label for="address"><strong>Address</strong></label><input class="form-control" type="text" id="address" placeholder="38, Gulzhar Nagar, Netaji Chowk" name="address"></div>
+                                            <form method="POST" action="/profile?form=2">
+                                                <div class="form-group"><label for="address"><strong>Address</strong></label><input class="form-control" type="text" id="address" placeholder="38, Gulzhar Nagar, Netaji Chowk" name="address" <% if(rel2) { %>value="<%= rel2.address %>"<% } %>></div>
                                                 <div class="form-row">
                                                     <div class="col">
-                                                        <div class="form-group"><label for="city"><strong>City / Town</strong></label><input class="form-control" type="text" id="city" placeholder="New Delhi" name="city"></div>
+                                                        <div class="form-group"><label for="city"><strong>City / Town</strong></label><input class="form-control" type="text" id="city" placeholder="New Delhi" name="city" <% if(rel2) { %>value="<%= rel2.city %>"<% } %>></div>
                                                     </div>
                                                     <div class="col">
-                                                        <div class="form-group"><label for="pincode"><strong>Pincode</strong></label><input class="form-control" type="text" id="pincode" placeholder="123456" name="pincode" maxlength="6" minlength="6"></div>
+                                                        <div class="form-group"><label for="pincode"><strong>Pincode</strong></label><input class="form-control" type="text" id="pincode" placeholder="123456" name="pincode" maxlength="6" minlength="6" <% if(rel2) { %>value="<%= rel2.pincode %>"<% } %>></div>
                                                     </div>
                                                 </div>
-                                                <div class="form-group"><label for="contact"><strong>Contact Number</strong></label><input class="form-control" type="tel" id="contact" placeholder="9999900000" name="contact"></div>
+                                                <div class="form-group"><label for="contact"><strong>Contact Number</strong></label><input class="form-control" type="tel" id="contact" placeholder="9999900000" name="contact" <% if(rel2) { %>value="<%= rel2.contact %>"<% } %>></div>
                                                 <div class="form-group"><button class="btn btn-primary btn-sm" type="submit">Save&nbsp;Settings</button></div>
                                             </form>
                                         </div>
@@ -92,7 +96,7 @@
                                             <p class="text-primary m-0 font-weight-bold">More Hall Details</p>
                                         </div>
                                         <div class="card-body">
-                                            <form>
+                                            <form method="POST" action="/profile?form=3">
                                                 <div class="row">
                                                     <div class="col-md-12">
                                                         <div class="form-group">
@@ -103,21 +107,25 @@
                                                         </div>
                                                         <div class="form-group">
                                                             <label for="size"><strong>Size</strong> (in sq.ft) *</label>
-                                                            <input type="number" class="form-control" id="size" name="size">
+                                                            <input type="number" class="form-control" id="size" name="size" <% if(rel2) { %>value="<%= rel2.size %>"<% } %>>
                                                         </div>
                                                         <div class="form-row">
                                                             <div class="col-md-6">
                                                                 <div class="form-group">
                                                                     <label for="shifts"><strong>Shifts</strong> *</label>
-                                                                    <input type="number" id="shifts" name="shifts" class="form-control" value="2">
+                                                                    <input type="number" id="shifts" name="shifts" class="form-control" <% if(rel2) { %>value="<%= rel2.shift %>"<% } %>>
                                                                 </div>
                                                             </div>
                                                             <div class="col-md-6">
                                                                 <div class="form-group">
                                                                     <label for="costpershift"><strong>Cost/Shift</strong> (in ₹) *</label>
-                                                                    <input type="number" id="costpershift" name="costpershift" class="form-control" placeholder="25000">
+                                                                    <input type="number" id="costpershift" name="costpershift" class="form-control" placeholder="25000" <% if(rel2) { %>value="<%= rel2.pricepershift %>"<% } %>>
                                                                 </div>
                                                             </div>
+                                                        </div>
+                                                        <div class="form-group">
+                                                            <label for="desc"><strong>Description</strong> *</label>
+                                                            <textarea class="form-control" id="desc" name="desc" rows="4"><% if(rel2) { %><%= rel2.description %><% } %></textarea>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -126,6 +134,42 @@
                                         </div>
                                         <div class="card-footer">
                                             <small>* fields are mandatory.</small>
+                                        </div>
+                                    </div>
+                                    <div class="card shadow mb-3">
+                                        <div class="card-header py-3">
+                                            <p class="text-primary m-0 font-weight-bold">Bank Details</p>
+                                        </div>
+                                        <div class="card-body">
+                                            <form method="POST" action="/profile?form=4">
+                                                <div class="row">
+                                                    <div class="col-md-12">
+                                                        <div class="form-row">
+                                                            <div class="col-md-6">
+                                                                <div class="form-group">
+                                                                    <label for="acholdername"><strong>A/c Holder Name</strong></label>
+                                                                    <input type="text" class="form-control" id="acholdername" name="acholdername" placeholder="Meher Anand" <% if(rel3) { %>value="<%= rel3.name %>"<% } %>>
+                                                                </div>
+                                                            </div>
+                                                            <div class="col-md-6">
+                                                                <div class="form-group">
+                                                                    <label for="acnum"><strong>A/c Number</strong></label>
+                                                                    <input type="number" id="acnum" name="acnum" class="form-control" placeholder="1234567890" <% if(rel3) { %>value="<%= rel3.accno %>"<% } %>>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="form-group">
+                                                            <label for="ifsc"><strong>IFS Code</strong></label>
+                                                            <input class="form-control" id="ifsc" name="ifsc" type="text" placeholder="SBIN0000000" <% if(rel3) { %>value="<%= rel3.ifsc %>"<% } %>>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="form-group"><button class="btn btn-primary btn-sm" type="submit">Save&nbsp;Settings</button>
+                                                </div>
+                                            </form>
+                                        </div>
+                                        <div class="card-footer">
+                                            <small>All fields are mandatory.</small>
                                         </div>
                                     </div>
                                 </div>

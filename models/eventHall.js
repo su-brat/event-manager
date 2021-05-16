@@ -4,6 +4,7 @@ const eventHallSchema = mongoose.Schema({
     size: Number,
     shift: Number,
     pricepershift: Number,
+    description: String,
     contact: Number,
     address: String,
     city: String,
