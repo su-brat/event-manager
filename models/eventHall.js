@@ -9,7 +9,7 @@ const eventHallSchema = mongoose.Schema({
     address: String,
     city: String,
     pincode: Number,
-    managerid: String
+    managerid: { type: mongoose.Schema.Types.ObjectId, ref: 'EventManager' }
 });
 
 const EventHall = mongoose.model('EventHall', eventHallSchema);

@@ -2,7 +2,8 @@ const mongoose = require('mongoose');
 
 const bankAccountSchema = mongoose.Schema({
     managerid: {
-        type: String,
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'EventManager',
         required: true
     },
     name: {

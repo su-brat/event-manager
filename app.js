@@ -1,6 +1,8 @@
 const express = require('express');
 const app = express();
 const path = require('path');
+const session = require('express-session');
+const bcrypt = require('bcrypt');
 const methodOverride = require('method-override');
 
 const db = require('./dbhandler');
@@ -11,9 +13,23 @@ const EventManager = require('./models/eventManager');
 const EventHall = require('./models/eventHall');
 const BankAccount = require('./models/bankAccount');
 
-const userId = '60a01dafe17afdf02876309f'; // Assuming a manager with _id = userId
-                                           // is inserted into eventmanagers collection
-                                           // (Hardcoded for build-time use)
+const weekinmillis = (weeks = 1) => 1000 * 60 * 60 * 24 * 7 * weeks;
+
+let user = null;
+
+const sessionConfig = {
+    secret: 'Thisisasecretkey',
+    resave: false,
+    saveUninitialized: true,
+    cookie: {
+        expires: Date.now() + weekinmillis(),
+        maxAge: weekinmillis()
+    }
+}
+
+const hashedpwd = async (pwd) => await bcrypt.hash(pwd, 12);
+
+const authenticate = async (user, pwd) => await bcrypt.compare(pwd, user.password);
 
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, '/views'));
@@ -30,71 +46,120 @@ app.use(express.json());
 //to override POST request for DELETE, PUT, PATCH etc.
 app.use(methodOverride('_method'));
 
+app.use(session(sessionConfig));
+
+app.use((req, res, next) => {
+    req.requestTime = Date.now();
+    console.log(`\nRequest timestamp: ${req.requestTime}`)
+    console.log(`User: ${user}\n`);
+    next();
+})
+
 //to connect and listen to port 3000
 app.listen(3000, () => {
     console.log('Listening to port 3000...');
 });
 
 app.get('/', async (req, res) => {
-    if (userId) {
-        try {
-            let user = await EventManager.findOne({ _id: userId })
-            if (user)
-                res.redirect('/dashboard');
-            else {
-                userId = null;
-                res.render('index');
+    if (req.session.userId) {
+        if (!user) {
+            try {
+            user = await EventManager.findOne({ _id: req.session.userId })
+            } catch (err) {
+                user = null;
+                req.session.destroy();
+                console.log(err);
             }
         }
-        catch(err) {
-            console.log(err);
-            res.render('index');
-        }
+        res.redirect('/dashboard');
     }
     else {
-
+        user = null;
         res.render('index');
     }
 });
 
 app.get('/register', (req, res) => {
-    res.render('register');
+    if (req.session.userId)
+        res.redirect('/logout');
+    else
+        res.render('register');
 });
 
-app.post('/register', (req, res) => {
+app.post('/register', async (req, res) => {
 
     //Code to register and verify.
-
+    if (req.body.password==req.body.password_repeat) {
+        try {
+            let hpwd = await hashedpwd(req.body.password);
+            user = new EventManager({
+                fname: req.body.first_name,
+                lname: req.body.last_name,
+                email: req.body.email,
+                phone: req.body.phone,
+                aadhaar: req.body.aadhaar,
+                pan: req.body.pan,
+                password: hpwd
+            })
+            await user.save();
+            req.session.userId = user._id;
+        } catch (err) {
+            user = null;
+            console.log(err);
+        }
+        res.redirect('/');
+    }
 })
 
 app.get('/login', (req, res) => {
-    res.render('login');
+    if (req.session.userId)
+        res.redirect('/logout');
+    else
+        res.render('login');
 });
 
-app.post('/login', (req, res) => {
+app.post('/login', async (req, res) => {
 
     //Code to authenticate and log in.
-
+    try {
+        let pwd = req.body.password;
+        console.log(pwd);
+        user = await EventManager.findOne({ email: req.body.email });
+        let verified = await authenticate(user, pwd);
+        if (!verified)
+            user = null;
+        else
+            req.session.userId = user._id;
+    } catch (err) {
+        console.log(err);
+        user = null;
+    }
+    res.redirect('/');
 });
 
 app.get('/dashboard', (req, res) => {
-    res.render('dashboard');
+    if (user)
+        res.render('dashboard');
+    else
+        res.redirect('/');
 });
 
 app.get('/profile', async (req, res) => {
-    try {
-        let rel1 = await EventManager.findOne({ _id: userId })
-        console.log(rel1);
-        let rel2 = await EventHall.findOne({ managerid: userId })
-        console.log(rel2);
-        let rel3 = await BankAccount.findOne({ managerid: userId })
-        console.log(rel3);
-        res.render('profile', {rel1, rel2, rel3});
+    if (user) {
+        try {
+            let hall = await EventHall.findOne({ managerid: user._id })
+            console.log(hall);
+            let account = await BankAccount.findOne({ managerid: user._id })
+            console.log(account);
+            res.render('profile', {user, hall, account});
+        }
+        catch(err) {
+            console.log(err);
+            res.redirect('/');
+        }
     }
-    catch(err) {
-        console.log(err);
+    else
         res.redirect('/');
-    }
 });
 
 app.post('/profile', async (req, res) => {
@@ -102,18 +167,18 @@ app.post('/profile', async (req, res) => {
     try {
         switch (req.query.form) {
             case '1':
-                update = await EventManager.findOneAndUpdate({ _id: userId }, {
-                    fname: req.body.first_name, 
-                    lname: req.body.last_name, 
-                    email: req.body.email, 
+                update = await EventManager.findOneAndUpdate({ _id: user._id }, {
+                    fname: req.body.first_name,
+                    lname: req.body.last_name,
+                    email: req.body.email,
                     aadhaar: req.body.aadhaar_num,
                     pan: req.body.pan_num,
                     phone: req.body.phone
-                }, {new: true, runValidators: true});
+                }, { new: true, runValidators: true });
                 break;
             case '2':
-                update = await EventHall.findOneAndUpdate({ managerid: userId }, {
-                    managerid: userId, 
+                update = await EventHall.findOneAndUpdate({ managerid: user._id }, {
+                    managerid: user._id, 
                     address: req.body.address,
                     city: req.body.city,
                     pincode: req.body.pincode,
@@ -121,8 +186,8 @@ app.post('/profile', async (req, res) => {
                 }, { upsert: true, new: true, runValidators: true });
                 break;
             case '3':
-                update = await EventHall.findOneAndUpdate({ managerid: userId }, {
-                    managerid: userId,
+                update = await EventHall.findOneAndUpdate({ managerid: user._id }, {
+                    managerid: user._id,
                     size: req.body.size,
                     shift: req.body.shifts,
                     pricepershift: req.body.costpershift,
@@ -130,8 +195,8 @@ app.post('/profile', async (req, res) => {
                 }, { upsert: true, new: true, runValidators: true });
                 break;
             case '4':
-                update = await BankAccount.findOneAndUpdate({ managerid: userId }, {
-                    managerid: userId, 
+                update = await BankAccount.findOneAndUpdate({ managerid: user._id }, {
+                    managerid: user._id, 
                     name: req.body.acholdername,
                     accno: req.body.acnum,
                     ifsc: req.body.ifsc
@@ -148,13 +213,18 @@ app.post('/profile', async (req, res) => {
 });
 
 app.get('/bookings', (req, res) => {
-    res.render('bookings');
+    if (user)
+        res.render('bookings');
+    else
+        res.redirect('/');
 });
 
 app.get('/logout', (req, res) => {
     
     //Code to log the user out.
-
+    user = null;
+    if (req.session.userId)
+        req.session.destroy();
     res.redirect('/');
 });
 

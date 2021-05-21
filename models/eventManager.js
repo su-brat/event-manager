@@ -38,7 +38,16 @@ const eventManagerSchema = mongoose.Schema({
         type: Number,
         maxLength: 10,
         required: true
+    },
+    password: {
+        type: String
     }
+});
+
+eventManagerSchema.virtual('fullname').get(function () {
+    return `${this.fname} ${this.lname}`
+}).set(function (fullname) {
+    this.fname, this.lname = fullname.split(' ');
 });
 
 const EventManager = mongoose.model('EventManager', eventManagerSchema);
