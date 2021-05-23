@@ -3,6 +3,7 @@ const app = express();
 const path = require('path');
 const session = require('express-session');
 const bcrypt = require('bcrypt');
+const flash = require('connect-flash');
 const methodOverride = require('method-override');
 
 const db = require('./dbhandler');
@@ -14,8 +15,6 @@ const EventHall = require('./models/eventHall');
 const BankAccount = require('./models/bankAccount');
 
 const weekinmillis = (weeks = 1) => 1000 * 60 * 60 * 24 * 7 * weeks;
-
-let user = null;
 
 const sessionConfig = {
     secret: 'Thisisasecretkey',
@@ -48,10 +47,19 @@ app.use(methodOverride('_method'));
 
 app.use(session(sessionConfig));
 
-app.use((req, res, next) => {
+app.use(flash());
+
+app.use(async (req, res, next) => {
     req.requestTime = Date.now();
-    console.log(`\nRequest timestamp: ${req.requestTime}`)
-    console.log(`User: ${user}\n`);
+    console.log(`\nRequest timestamp: ${req.requestTime}`);
+    try {
+        res.locals.user = await EventManager.findOne({ _id: req.session.userId });
+    } catch (err) {
+        console.log(err.message);
+    }
+    console.log(`User: ${res.locals.user}\n`);
+    res.locals.success = req.flash('success');
+    res.locals.error = req.flash('error');
     next();
 })
 
@@ -61,26 +69,14 @@ app.listen(3000, () => {
 });
 
 app.get('/', async (req, res) => {
-    if (req.session.userId) {
-        if (!user) {
-            try {
-            user = await EventManager.findOne({ _id: req.session.userId })
-            } catch (err) {
-                user = null;
-                req.session.destroy();
-                console.log(err);
-            }
-        }
+    if (res.locals.user)
         res.redirect('/dashboard');
-    }
-    else {
-        user = null;
+    else
         res.render('index');
-    }
 });
 
 app.get('/register', (req, res) => {
-    if (req.session.userId)
+    if (res.locals.user)
         res.redirect('/logout');
     else
         res.render('register');
@@ -89,7 +85,7 @@ app.get('/register', (req, res) => {
 app.post('/register', async (req, res) => {
 
     //Code to register and verify.
-    if (req.body.password==req.body.password_repeat) {
+    if (req.body.password == req.body.password_repeat) {
         try {
             let hpwd = await hashedpwd(req.body.password);
             user = new EventManager({
@@ -103,16 +99,19 @@ app.post('/register', async (req, res) => {
             })
             await user.save();
             req.session.userId = user._id;
+            req.flash('success', 'Successfully registered.');
+            res.redirect('/dashboard');
         } catch (err) {
-            user = null;
+            req.session.destroy();
             console.log(err);
+            req.flash('error', err.message);
+            res.redirect('/register');
         }
-        res.redirect('/');
     }
 })
 
 app.get('/login', (req, res) => {
-    if (req.session.userId)
+    if (res.locals.user)
         res.redirect('/logout');
     else
         res.render('login');
@@ -125,36 +124,42 @@ app.post('/login', async (req, res) => {
         let pwd = req.body.password;
         console.log(pwd);
         user = await EventManager.findOne({ email: req.body.email });
-        let verified = await authenticate(user, pwd);
-        if (!verified)
-            user = null;
+        if (user) {
+            let verified = await authenticate(user, pwd);
+            if (!verified)
+                throw new Error('Invalid username or password.');
+            else {
+                req.session.userId = user._id;
+                res.redirect('/dashboard');
+            }
+        }
         else
-            req.session.userId = user._id;
+            throw new Error('Invalid username or password.');
     } catch (err) {
-        console.log(err);
-        user = null;
+        console.log(err.message);
+        req.flash('error', err.message);
+        res.redirect('/login');
     }
-    res.redirect('/');
 });
 
 app.get('/dashboard', (req, res) => {
-    if (user)
+    if (res.locals.user)
         res.render('dashboard');
     else
         res.redirect('/');
 });
 
 app.get('/profile', async (req, res) => {
-    if (user) {
+    if (res.locals.user) {
         try {
-            let hall = await EventHall.findOne({ managerid: user._id })
+            let hall = await EventHall.findOne({ managerid: res.locals.user._id })
             console.log(hall);
-            let account = await BankAccount.findOne({ managerid: user._id })
+            let account = await BankAccount.findOne({ managerid: res.locals.user._id })
             console.log(account);
-            res.render('profile', {user, hall, account});
+            res.render('profile', { hall, account });
         }
-        catch(err) {
-            console.log(err);
+        catch (err) {
+            console.log(err.message);
             res.redirect('/');
         }
     }
@@ -163,11 +168,11 @@ app.get('/profile', async (req, res) => {
 });
 
 app.post('/profile', async (req, res) => {
-    let update;
+    let update = null;
     try {
         switch (req.query.form) {
             case '1':
-                update = await EventManager.findOneAndUpdate({ _id: user._id }, {
+                update = await EventManager.findOneAndUpdate({ _id: res.locals.user._id }, {
                     fname: req.body.first_name,
                     lname: req.body.last_name,
                     email: req.body.email,
@@ -177,26 +182,21 @@ app.post('/profile', async (req, res) => {
                 }, { new: true, runValidators: true });
                 break;
             case '2':
-                update = await EventHall.findOneAndUpdate({ managerid: user._id }, {
-                    managerid: user._id, 
+                update = await EventHall.findOneAndUpdate({ managerid: res.locals.user._id }, {
+                    managerid: res.locals.user._id,
                     address: req.body.address,
                     city: req.body.city,
                     pincode: req.body.pincode,
-                    contact: req.body.contact
-                }, { upsert: true, new: true, runValidators: true });
-                break;
-            case '3':
-                update = await EventHall.findOneAndUpdate({ managerid: user._id }, {
-                    managerid: user._id,
+                    contact: req.body.contact,
                     size: req.body.size,
                     shift: req.body.shifts,
                     pricepershift: req.body.costpershift,
                     description: req.body.desc
                 }, { upsert: true, new: true, runValidators: true });
                 break;
-            case '4':
-                update = await BankAccount.findOneAndUpdate({ managerid: user._id }, {
-                    managerid: user._id, 
+            case '3':
+                update = await BankAccount.findOneAndUpdate({ managerid: res.locals.user._id }, {
+                    managerid: res.locals.user._id,
                     name: req.body.acholdername,
                     accno: req.body.acnum,
                     ifsc: req.body.ifsc
@@ -205,24 +205,24 @@ app.post('/profile', async (req, res) => {
             default:
                 update = null;
         }
-    } catch(err) {
-        update = err;
+    } catch (err) {
+        console.log(err.message);
+        req.flash('error', err.message);
     }
     console.log(update);
     res.redirect('/profile');
 });
 
 app.get('/bookings', (req, res) => {
-    if (user)
+    if (res.locals.user)
         res.render('bookings');
     else
         res.redirect('/');
 });
 
 app.get('/logout', (req, res) => {
-    
+
     //Code to log the user out.
-    user = null;
     if (req.session.userId)
         req.session.destroy();
     res.redirect('/');
