@@ -1,3 +1,4 @@
+<!--Logout modal-->
 <div class="modal" tabindex="-1" role="dialog" id="logoutWarn">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
@@ -11,8 +12,29 @@
                 <p>To proceed, you need to logout. <em><strong>Do you wish to log out?</strong></em></p>
             </div>
             <div class="modal-footer">
-                <form action="/logout"><button type="submit" class="btn btn-sm btn-outline-danger">Yes</button></form>
-                <button type="button" class="btn btn-sm btn-outline-secondary" data-dismiss="modal">Cancel</button>
+                <form method="POST" action="/logout"><button type="submit" class="btn btn-sm btn-outline-danger">Yes</button></form>
+                <button type="button" class="btn btn-sm btn-outline-primary" data-dismiss="modal">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!--Delete account modal-->
+<div class="modal" tabindex="-1" role="dialog" id="deleteWarn">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title text-primary">Delete Account</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p><em>Do you really wish to <strong>delete your account permanently?</strong></em></p>
+            </div>
+            <div class="modal-footer">
+                <form action="/deleteAccount" method="POST"><button type="submit" class="btn btn-sm btn-outline-danger">Yes, delete</button></form>
+                <button type="button" class="btn btn-sm btn-outline-primary" data-dismiss="modal">No, cancel</button>
             </div>
         </div>
     </div>

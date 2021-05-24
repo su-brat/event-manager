@@ -51,13 +51,12 @@ app.use(flash());
 
 app.use(async (req, res, next) => {
     req.requestTime = Date.now();
-    console.log(`\nRequest timestamp: ${req.requestTime}`);
+    console.log(`\nRequest timestamp: ${new Date(req.requestTime)}`);
     try {
         res.locals.user = await EventManager.findOne({ _id: req.session.userId });
     } catch (err) {
         console.log(err.message);
     }
-    console.log(`User: ${res.locals.user}\n`);
     res.locals.success = req.flash('success');
     res.locals.error = req.flash('error');
     next();
@@ -97,13 +96,13 @@ app.post('/register', async (req, res) => {
                 pan: req.body.pan,
                 password: hpwd
             })
-            await user.save();
+            await db.save(user);
             req.session.userId = user._id;
             req.flash('success', 'Successfully registered.');
             res.redirect('/dashboard');
         } catch (err) {
             req.session.destroy();
-            console.log(err);
+            console.log(err.message);
             req.flash('error', err.message);
             res.redirect('/register');
         }
@@ -122,7 +121,6 @@ app.post('/login', async (req, res) => {
     //Code to authenticate and log in.
     try {
         let pwd = req.body.password;
-        console.log(pwd);
         user = await EventManager.findOne({ email: req.body.email });
         if (user) {
             let verified = await authenticate(user, pwd);
@@ -153,9 +151,7 @@ app.get('/profile', async (req, res) => {
     if (res.locals.user) {
         try {
             let hall = await EventHall.findOne({ managerid: res.locals.user._id })
-            console.log(hall);
             let account = await BankAccount.findOne({ managerid: res.locals.user._id })
-            console.log(account);
             res.render('profile', { hall, account });
         }
         catch (err) {
@@ -205,11 +201,11 @@ app.post('/profile', async (req, res) => {
             default:
                 update = null;
         }
+        req.flash('success', 'Updated successfully.')
     } catch (err) {
         console.log(err.message);
         req.flash('error', err.message);
     }
-    console.log(update);
     res.redirect('/profile');
 });
 
@@ -220,13 +216,33 @@ app.get('/bookings', (req, res) => {
         res.redirect('/');
 });
 
-app.get('/logout', (req, res) => {
+app.post('/logout', (req, res) => {
 
     //Code to log the user out.
     if (req.session.userId)
         req.session.destroy();
     res.redirect('/');
 });
+
+app.post('/deleteAccount', async (req, res) => {
+    if (req.session.userId) {
+        try {
+            const userId = req.session.userId;
+            console.log('Deleting account...');
+            let user = await EventManager.findOne({ _id: userId });
+            await EventManager.deleteOne({ _id: userId });
+            await EventHall.deleteMany({ managerid: userId });
+            await BankAccount.deleteMany({ managerid: userId });
+            req.session.destroy();
+            console.log('Account deleted');
+        } catch (err) {
+            console.log(err.message);
+            req.flash('error', err.message);
+            res.redirect('/profile');
+        }
+    } else
+        res.redirect('/');
+})
 
 
 /*

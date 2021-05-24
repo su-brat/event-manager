@@ -102,7 +102,7 @@
                                                             </div>
                                                         </div>
                                                         <div class="form-group"><button class="btn btn-primary btn-sm"
-                                                                type="submit">Save Settings</button></div>
+                                                                type="submit">Save</button></div>
                                                     </form>
                                                 </div>
                                                 <div class="card-footer">
@@ -120,7 +120,7 @@
                                                 <div class="card-body">
                                                     <form method="POST" action="/profile?form=2">
                                                         <div class="form-group"><label
-                                                                for="address"><strong>Address</strong></label><input
+                                                                for="address"><strong>Address</strong>*</label><input
                                                                 class="form-control" type="text" id="address"
                                                                 placeholder="38, Gulzhar Nagar, Netaji Chowk"
                                                                 name="address" <% if(hall) { %>value="<%= hall.address
@@ -128,14 +128,14 @@
                                                         <div class="form-row">
                                                             <div class="col">
                                                                 <div class="form-group"><label for="city"><strong>City /
-                                                                            Town</strong></label><input
+                                                                            Town</strong>*</label><input
                                                                         class="form-control" type="text" id="city"
                                                                         placeholder="New Delhi" name="city" <% if(hall)
                                                                         { %>value="<%= hall.city %>"<% } %>></div>
                                                             </div>
                                                             <div class="col">
                                                                 <div class="form-group"><label
-                                                                        for="pincode"><strong>Pincode</strong></label><input
+                                                                        for="pincode"><strong>Pincode</strong>*</label><input
                                                                         class="form-control" type="text" id="pincode"
                                                                         placeholder="123456" name="pincode"
                                                                         maxlength="6" minlength="6" <% if(hall) {
@@ -143,7 +143,7 @@
                                                             </div>
                                                         </div>
                                                         <div class="form-group"><label for="contact"><strong>Contact
-                                                                    Number</strong></label><input class="form-control"
+                                                                    Number</strong></label>*<input class="form-control"
                                                                 type="tel" id="contact" placeholder="9999900000"
                                                                 name="contact" <% if(hall) { %>value="<%= hall.contact
                                                                 %>"<% } %>></div>
@@ -151,15 +151,15 @@
                                                             <div class="col-md-4">
                                                                 <div class="form-group">
                                                                     <label for="size"><strong>Size</strong> (in
-                                                                        sq.ft)</label>
+                                                                        sq.ft)*</label>
                                                                     <input type="number" class="form-control" id="size"
-                                                                        placeholder="2500" name="size" <% if(hall) {
+                                                                        placeholder="4500" name="size" <% if(hall) {
                                                                         %>value="<%= hall.size %>"<% } %>>
                                                                 </div>
                                                             </div>
                                                             <div class="col-md-4">
                                                                 <div class="form-group">
-                                                                    <label for="shifts"><strong>Shifts</strong></label>
+                                                                    <label for="shifts"><strong>Shifts</strong>*</label>
                                                                     <input type="number" id="shifts" name="shifts"
                                                                         placeholder="3" class="form-control" <% if(hall)
                                                                         { %>value="<%= hall.shift %>
@@ -170,7 +170,7 @@
                                                                 <div class="form-group">
                                                                     <label
                                                                         for="costpershift"><strong>Cost/Shift</strong>
-                                                                        (in ₹)</label>
+                                                                        (in ₹)*</label>
                                                                     <input type="number" id="costpershift"
                                                                         name="costpershift" class="form-control"
                                                                         placeholder="25000" <% if(hall) { %>value="<%=
@@ -191,11 +191,11 @@
                                                             </div>
                                                         </div>
                                                         <div class="form-group"><button class="btn btn-primary btn-sm"
-                                                                type="submit">Save&nbsp;Settings</button></div>
+                                                                type="submit">Save</button></div>
                                                     </form>
                                                 </div>
                                                 <div class="card-footer">
-                                                    <small>All the fields are mandatory.</small>
+                                                    <small>* fields are mandatory.</small>
                                                 </div>
                                             </div>
                                             <div class="card shadow mb-3">
@@ -238,12 +238,20 @@
                                                             </div>
                                                         </div>
                                                         <div class="form-group"><button class="btn btn-primary btn-sm"
-                                                                type="submit">Save&nbsp;Settings</button>
+                                                                type="submit">Save</button>
                                                         </div>
                                                     </form>
                                                 </div>
                                                 <div class="card-footer">
                                                     <small>All the fields are mandatory.</small>
+                                                </div>
+                                            </div>
+                                            <div class="card shadow mb-3">
+                                                <div class="card-header py-3">
+                                                    <p class="text-primary m-0 font-weight-bold">Permanantly Delete Account</p>
+                                                </div>
+                                                <div class="card-body">
+                                                    <button class="btn btn-sm btn-outline-danger" type="button" data-toggle="modal" data-target="#deleteWarn">Delete Account</button>
                                                 </div>
                                             </div>
                                     </div>
