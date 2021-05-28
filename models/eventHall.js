@@ -5,12 +5,20 @@ const eventHallSchema = mongoose.Schema({
         type: Number,
         required: true
     },
+    capacity: {
+        type: Number,
+        required: true
+    },
     shift: {
         type: Number,
         required: true
     },
     pricepershift: {
         type: Number,
+        required: true
+    },
+    functiontype: {
+        type: Array,
         required: true
     },
     description: String,

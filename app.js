@@ -55,10 +55,11 @@ app.use(async (req, res, next) => {
     try {
         res.locals.user = await EventManager.findOne({ _id: req.session.userId });
     } catch (err) {
-        console.log(err.message);
+        console.log(err);
     }
     res.locals.success = req.flash('success');
     res.locals.error = req.flash('error');
+    res.locals.halltypes = ['B\'day', 'Marriage', 'Thread Ceremony'];
     next();
 })
 
@@ -102,7 +103,7 @@ app.post('/register', async (req, res) => {
             res.redirect('/dashboard');
         } catch (err) {
             req.session.destroy();
-            console.log(err.message);
+            console.log(err);
             req.flash('error', err.message);
             res.redirect('/register');
         }
@@ -128,13 +129,14 @@ app.post('/login', async (req, res) => {
                 throw new Error('Invalid username or password.');
             else {
                 req.session.userId = user._id;
+                req.flash('success', 'Welcome back.');
                 res.redirect('/dashboard');
             }
         }
         else
             throw new Error('Invalid username or password.');
     } catch (err) {
-        console.log(err.message);
+        console.log(err);
         req.flash('error', err.message);
         res.redirect('/login');
     }
@@ -155,7 +157,7 @@ app.get('/profile', async (req, res) => {
             res.render('profile', { hall, account });
         }
         catch (err) {
-            console.log(err.message);
+            console.log(err);
             res.redirect('/');
         }
     }
@@ -178,6 +180,7 @@ app.post('/profile', async (req, res) => {
                 }, { new: true, runValidators: true });
                 break;
             case '2':
+                const ftype = res.locals.halltypes.filter(type => req.body[type]);
                 update = await EventHall.findOneAndUpdate({ managerid: res.locals.user._id }, {
                     managerid: res.locals.user._id,
                     address: req.body.address,
@@ -185,8 +188,10 @@ app.post('/profile', async (req, res) => {
                     pincode: req.body.pincode,
                     contact: req.body.contact,
                     size: req.body.size,
+                    capacity: req.body.capacity,
                     shift: req.body.shifts,
                     pricepershift: req.body.costpershift,
+                    functiontype: ftype,
                     description: req.body.desc
                 }, { upsert: true, new: true, runValidators: true });
                 break;
@@ -203,8 +208,8 @@ app.post('/profile', async (req, res) => {
         }
         req.flash('success', 'Updated successfully.')
     } catch (err) {
-        console.log(err.message);
-        req.flash('error', err.message);
+        console.log(err);
+        req.flash('error', err);
     }
     res.redirect('/profile');
 });
@@ -225,8 +230,8 @@ app.post('/logout', (req, res) => {
 });
 
 app.post('/deleteAccount', async (req, res) => {
-    if (req.session.userId) {
-        try {
+    try {
+        if (req.session.userId) {
             const userId = req.session.userId;
             console.log('Deleting account...');
             let user = await EventManager.findOne({ _id: userId });
@@ -235,13 +240,13 @@ app.post('/deleteAccount', async (req, res) => {
             await BankAccount.deleteMany({ managerid: userId });
             req.session.destroy();
             console.log('Account deleted');
-        } catch (err) {
-            console.log(err.message);
-            req.flash('error', err.message);
-            res.redirect('/profile');
         }
-    } else
         res.redirect('/');
+    } catch (err) {
+        console.log(err);
+        req.flash('error', err.message);
+        res.redirect('/profile');
+    }
 })
 
 

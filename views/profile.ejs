@@ -148,25 +148,31 @@
                                                                 name="contact" <% if(hall) { %>value="<%= hall.contact
                                                                 %>"<% } %>></div>
                                                         <div class="form-row">
-                                                            <div class="col-md-4">
+                                                            <div class="col-sm-6">
                                                                 <div class="form-group">
-                                                                    <label for="size"><strong>Size</strong> (in
+                                                                    <label for="size"><strong>Area</strong> (in
                                                                         sq.ft)*</label>
                                                                     <input type="number" class="form-control" id="size"
                                                                         placeholder="4500" name="size" <% if(hall) {
                                                                         %>value="<%= hall.size %>"<% } %>>
                                                                 </div>
                                                             </div>
-                                                            <div class="col-md-4">
+                                                            <div class="col-sm-6">
                                                                 <div class="form-group">
-                                                                    <label for="shifts"><strong>Shifts</strong>*</label>
-                                                                    <input type="number" id="shifts" name="shifts"
-                                                                        placeholder="3" class="form-control" <% if(hall)
-                                                                        { %>value="<%= hall.shift %>
-                                                                        "<% } %>>
+                                                                    <label for="capacity"><strong>Capacity</strong>*</label>
+                                                                    <input type="number" class="form-control" id="capacity" placeholder="1000" name="capacity" <% if(hall) { %>value="<%=
+                                                                        hall.capacity %>"<% } %>>
                                                                 </div>
                                                             </div>
-                                                            <div class="col-md-4">
+                                                        </div>
+                                                        <div class="form-row">
+                                                            <div class="col-sm-6">
+                                                                <div class="form-group">
+                                                                    <label for="shifts"><strong>Shifts</strong>*</label>
+                                                                    <input type="number" id="shifts" name="shifts" placeholder="3" class="form-control" <% if(hall) { %>value="<%= hall.shift %>"<% } %>>
+                                                                </div>
+                                                            </div>
+                                                            <div class="col-sm-6">
                                                                 <div class="form-group">
                                                                     <label
                                                                         for="costpershift"><strong>Cost/Shift</strong>
@@ -177,6 +183,15 @@
                                                                         hall.pricepershift %>"<% } %>>
                                                                 </div>
                                                             </div>
+                                                        </div>
+                                                        <div class="form-group">
+                                                            <label><strong>Functions type</strong>*</label>    
+                                                            <% for (halltype of halltypes) { %>
+                                                            <div class="form-check">
+                                                                <input type="checkbox" class="form-check-input" name="<%= halltype %>" id="<%= halltype %>" <% if (hall && hall.functiontype.includes(halltype)) { %> checked <% } %>>
+                                                                <label for="<%= halltype %>" class="form-check-label"><%= halltype %></label>
+                                                            </div>
+                                                            <% } %>
                                                         </div>
                                                         <div class="form-group">
                                                             <label for="desc"><strong>Description</strong></label>
