@@ -233,13 +233,18 @@ app.post('/deleteAccount', async (req, res) => {
     try {
         if (req.session.userId) {
             const userId = req.session.userId;
-            console.log('Deleting account...');
             let user = await EventManager.findOne({ _id: userId });
-            await EventManager.deleteOne({ _id: userId });
-            await EventHall.deleteMany({ managerid: userId });
-            await BankAccount.deleteMany({ managerid: userId });
-            req.session.destroy();
-            console.log('Account deleted');
+            let verified = await authenticate(user, req.body.pwd);
+            if (verified) {
+                console.log('Deleting account...');
+                await EventManager.deleteOne({ _id: userId });
+                await EventHall.deleteMany({ managerid: userId });
+                await BankAccount.deleteMany({ managerid: userId });
+                req.session.destroy();
+                console.log('Account deleted');
+            }
+            else
+                throw new Error('Failed to delete account. Could not authenticate user.');
         }
         res.redirect('/');
     } catch (err) {

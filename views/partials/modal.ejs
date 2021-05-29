@@ -31,9 +31,11 @@
             </div>
             <div class="modal-body">
                 <p><em>Do you really wish to <strong>delete your account permanently?</strong></em></p>
+                <form action="/deleteAccount" method="POST">
+                    <input type="password" class="form-control" id="pwd" name="pwd" placeholder="Enter password">
             </div>
             <div class="modal-footer">
-                <form action="/deleteAccount" method="POST"><button type="submit" class="btn btn-sm btn-outline-danger">Yes, delete</button></form>
+                <button type="submit" class="btn btn-sm btn-outline-danger">Yes, delete</button></form>
                 <button type="button" class="btn btn-sm btn-outline-primary" data-dismiss="modal">No, cancel</button>
             </div>
         </div>
