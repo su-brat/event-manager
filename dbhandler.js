@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 
 //to connect to MongoDB and use database "test"
 const connect = async (database) => {
-    await mongoose.connect(`mongodb://localhost:27017/${database}`, { useNewUrlParser: true, useUnifiedTopology: true })
+    await mongoose.connect(`mongodb://localhost:27017/${database}`, { useNewUrlParser: true, useUnifiedTopology: true, useFindAndModify: false, useCreateIndex: true })
         .then(() => {
             console.log('Connected to database');
         })

@@ -22,6 +22,12 @@ const eventHallSchema = mongoose.Schema({
         required: true
     },
     description: String,
+    images: [
+        {
+            url: String,
+            filename: String
+        }
+    ],
     contact: {
         type: Number,
         required: true

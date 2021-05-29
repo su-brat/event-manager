@@ -4,6 +4,14 @@ const path = require('path');
 const session = require('express-session');
 const bcrypt = require('bcrypt');
 const flash = require('connect-flash');
+
+if (process.env.NODE_ENV!=='PRODUCTION')
+    require('dotenv').config();
+
+const { storage, cloudinary } = require('./cloudinaryconfig');
+const multer = require('multer');
+const upload = multer({ storage: storage });
+
 const methodOverride = require('method-override');
 
 const db = require('./dbhandler');
@@ -16,8 +24,9 @@ const BankAccount = require('./models/bankAccount');
 
 const weekinmillis = (weeks = 1) => 1000 * 60 * 60 * 24 * 7 * weeks;
 
+
 const sessionConfig = {
-    secret: 'Thisisasecretkey',
+    secret: process.env.SESSION_SECRET,
     resave: false,
     saveUninitialized: true,
     cookie: {
@@ -63,10 +72,12 @@ app.use(async (req, res, next) => {
     next();
 })
 
-//to connect and listen to port 3000
-app.listen(3000, () => {
-    console.log('Listening to port 3000...');
-});
+checkUser = (req, res, next) => {
+    if (res.locals.user)
+        next();
+    else
+        res.redirect('/');
+}
 
 app.get('/', async (req, res) => {
     if (res.locals.user)
@@ -77,17 +88,15 @@ app.get('/', async (req, res) => {
 
 app.get('/register', (req, res) => {
     if (res.locals.user)
-        res.redirect('/logout');
+        req.session.destroy();
     else
         res.render('register');
 });
 
 app.post('/register', async (req, res) => {
-
-    //Code to register and verify.
     if (req.body.password == req.body.password_repeat) {
         try {
-            let hpwd = await hashedpwd(req.body.password);
+            const pwdigest = await hashedpwd(req.body.password);
             user = new EventManager({
                 fname: req.body.first_name,
                 lname: req.body.last_name,
@@ -95,7 +104,7 @@ app.post('/register', async (req, res) => {
                 phone: req.body.phone,
                 aadhaar: req.body.aadhaar,
                 pan: req.body.pan,
-                password: hpwd
+                password: pwdigest
             })
             await db.save(user);
             req.session.userId = user._id;
@@ -112,19 +121,17 @@ app.post('/register', async (req, res) => {
 
 app.get('/login', (req, res) => {
     if (res.locals.user)
-        res.redirect('/logout');
+        req.session.destroy();
     else
         res.render('login');
 });
 
 app.post('/login', async (req, res) => {
-
-    //Code to authenticate and log in.
     try {
-        let pwd = req.body.password;
+        const pwd = req.body.password;
         user = await EventManager.findOne({ email: req.body.email });
         if (user) {
-            let verified = await authenticate(user, pwd);
+            const verified = await authenticate(user, pwd);
             if (!verified)
                 throw new Error('Invalid username or password.');
             else {
@@ -142,35 +149,28 @@ app.post('/login', async (req, res) => {
     }
 });
 
-app.get('/dashboard', (req, res) => {
-    if (res.locals.user)
-        res.render('dashboard');
-    else
-        res.redirect('/');
+app.get('/dashboard', checkUser, (req, res) => {
+    res.render('dashboard');
 });
 
-app.get('/profile', async (req, res) => {
-    if (res.locals.user) {
-        try {
-            let hall = await EventHall.findOne({ managerid: res.locals.user._id })
-            let account = await BankAccount.findOne({ managerid: res.locals.user._id })
-            res.render('profile', { hall, account });
-        }
-        catch (err) {
-            console.log(err);
-            res.redirect('/');
-        }
+app.get('/profile', checkUser, async (req, res) => {
+    try {
+        const hall = await EventHall.findOne({ managerid: res.locals.user._id })
+        const account = await BankAccount.findOne({ managerid: res.locals.user._id })
+        res.render('profile', { hall, account });
     }
-    else
+    catch (err) {
+        console.log(err);
+        req.session.destroy();
         res.redirect('/');
+    }
 });
 
-app.post('/profile', async (req, res) => {
-    let update = null;
+app.post('/profile', checkUser, upload.array('images'), async (req, res) => {
     try {
         switch (req.query.form) {
             case '1':
-                update = await EventManager.findOneAndUpdate({ _id: res.locals.user._id }, {
+                await EventManager.findOneAndUpdate({ _id: res.locals.user._id }, {
                     fname: req.body.first_name,
                     lname: req.body.last_name,
                     email: req.body.email,
@@ -181,7 +181,8 @@ app.post('/profile', async (req, res) => {
                 break;
             case '2':
                 const ftype = res.locals.halltypes.filter(type => req.body[type]);
-                update = await EventHall.findOneAndUpdate({ managerid: res.locals.user._id }, {
+                const newimages = req.files.map(file => ({ url: file.path, filename: file.filename }));
+                const update = await EventHall.findOneAndUpdate({ managerid: res.locals.user._id }, {
                     managerid: res.locals.user._id,
                     address: req.body.address,
                     city: req.body.city,
@@ -194,17 +195,21 @@ app.post('/profile', async (req, res) => {
                     functiontype: ftype,
                     description: req.body.desc
                 }, { upsert: true, new: true, runValidators: true });
+                if (newimages.length>0) {
+                    for (let image of update.images)
+                        await cloudinary.uploader.destroy(image.filename);
+                    update.images = newimages;
+                    await update.save();
+                }
                 break;
             case '3':
-                update = await BankAccount.findOneAndUpdate({ managerid: res.locals.user._id }, {
+                await BankAccount.findOneAndUpdate({ managerid: res.locals.user._id }, {
                     managerid: res.locals.user._id,
                     name: req.body.acholdername,
                     accno: req.body.acnum,
                     ifsc: req.body.ifsc
                 }, { upsert: true, new: true, runValidators: true });
                 break;
-            default:
-                update = null;
         }
         req.flash('success', 'Updated successfully.')
     } catch (err) {
@@ -214,39 +219,32 @@ app.post('/profile', async (req, res) => {
     res.redirect('/profile');
 });
 
-app.get('/bookings', (req, res) => {
-    if (res.locals.user)
-        res.render('bookings');
-    else
-        res.redirect('/');
+app.get('/bookings', checkUser, (req, res) => {
+    res.render('bookings');
 });
 
 app.post('/logout', (req, res) => {
-
-    //Code to log the user out.
     if (req.session.userId)
         req.session.destroy();
     res.redirect('/');
 });
 
-app.post('/deleteAccount', async (req, res) => {
+app.post('/deleteAccount', checkUser, async (req, res) => {
     try {
-        if (req.session.userId) {
-            const userId = req.session.userId;
-            let user = await EventManager.findOne({ _id: userId });
-            let verified = await authenticate(user, req.body.pwd);
-            if (verified) {
-                console.log('Deleting account...');
-                await EventManager.deleteOne({ _id: userId });
-                await EventHall.deleteMany({ managerid: userId });
-                await BankAccount.deleteMany({ managerid: userId });
-                req.session.destroy();
-                console.log('Account deleted');
-            }
-            else
-                throw new Error('Failed to delete account. Could not authenticate user.');
+        const userId = req.session.userId;
+        const user = await EventManager.findOne({ _id: userId });
+        const verified = await authenticate(user, req.body.pwd);
+        if (verified) {
+            console.log('Deleting account...');
+            await EventManager.deleteOne({ _id: userId });
+            await EventHall.deleteMany({ managerid: userId });
+            await BankAccount.deleteMany({ managerid: userId });
+            req.session.destroy();
+            console.log('Account deleted');
+            res.redirect('/');
         }
-        res.redirect('/');
+        else
+            throw new Error('Failed to delete account. Could not authenticate user.');
     } catch (err) {
         console.log(err);
         req.flash('error', err.message);
@@ -254,33 +252,15 @@ app.post('/deleteAccount', async (req, res) => {
     }
 })
 
+//to connect and listen to port 3000
+app.listen(3000, () => {
+    console.log('Listening to port 3000...');
+});
 
 /*
-
-async function operateOnDB() {
-    await db.connect('eventBusiness');
-
-    let manager = new EventManager({ fname: 'Ram', lname: 'Jethmalani', email: 'ramj@ymail.com', aadhaar: '548648389383', phone: 9876543210 });
-    await db.save(manager);
-
-    await db.drop(EventManager);
-
-    db.close();
-}
-
-operateOnDB();
-
-
-app.get('/search', (req, res) => {
-    if (req.query.id && req.query.name) {
-        res.send('You are logged in')
-    }
-    else {
-        res.send('Permission denied')
-    }
-});
 
 app.get('/r/:subroute', (req, res) => {
     res.send(`Welcome to ${req.params.subroute}!`);
 });
+
 */
