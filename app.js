@@ -184,6 +184,7 @@ app.post('/profile', checkUser, upload.array('images'), async (req, res) => {
                 const newimages = req.files.map(file => ({ url: file.path, filename: file.filename }));
                 const update = await EventHall.findOneAndUpdate({ managerid: res.locals.user._id }, {
                     managerid: res.locals.user._id,
+                    name: req.body.hallname,
                     address: req.body.address,
                     city: req.body.city,
                     pincode: req.body.pincode,
@@ -195,12 +196,16 @@ app.post('/profile', checkUser, upload.array('images'), async (req, res) => {
                     functiontype: ftype,
                     description: req.body.desc
                 }, { upsert: true, new: true, runValidators: true });
-                if (newimages.length>0) {
-                    for (let image of update.images)
+                const deleteImages = [];
+                for (let image of update.images) {
+                    if (req.body[image.filename]) {
                         await cloudinary.uploader.destroy(image.filename);
-                    update.images = newimages;
-                    await update.save();
+                        deleteImages.push(image.filename);
+                    }
                 }
+                const oldimages = update.images.filter((image) => !deleteImages.includes(image.filename));
+                update.images = [...oldimages||[], ...newimages||[]];
+                await update.save();
                 break;
             case '3':
                 await BankAccount.findOneAndUpdate({ managerid: res.locals.user._id }, {
@@ -233,9 +238,14 @@ app.post('/deleteAccount', checkUser, async (req, res) => {
     try {
         const userId = req.session.userId;
         const user = await EventManager.findOne({ _id: userId });
+        const halls = await EventHall.find({ managerid: userId });
         const verified = await authenticate(user, req.body.pwd);
         if (verified) {
             console.log('Deleting account...');
+            for (let hall of halls) {
+                for (image of hall.images)
+                    await cloudinary.uploader.destroy(image.filename);
+            }
             await EventManager.deleteOne({ _id: userId });
             await EventHall.deleteMany({ managerid: userId });
             await BankAccount.deleteMany({ managerid: userId });

@@ -1,6 +1,16 @@
 const mongoose = require('mongoose');
 
+const ImageSchema = mongoose.Schema({
+    url: String,
+    filename: String
+});
+
+ImageSchema.virtual('thumbnail').get(function() {
+    return this.url.replace('/upload', '/upload/w_200');
+});
+
 const eventHallSchema = mongoose.Schema({
+    name: String,
     size: {
         type: Number,
         required: true
@@ -22,12 +32,7 @@ const eventHallSchema = mongoose.Schema({
         required: true
     },
     description: String,
-    images: [
-        {
-            url: String,
-            filename: String
-        }
-    ],
+    images: [ImageSchema],
     contact: {
         type: Number,
         required: true
