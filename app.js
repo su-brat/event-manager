@@ -205,6 +205,12 @@ app.post('/profile', checkUser, upload.array('images'), async (req, res) => {
                 }
                 const oldimages = update.images.filter((image) => !deleteImages.includes(image.filename));
                 update.images = [...oldimages||[], ...newimages||[]];
+                if (update.images.length>5) {
+                    const removeImages = update.images.slice(5).map(image => image.filename);
+                    update.images = update.images.slice(0, 5);
+                    for (let imagename of removeImages)
+                        await cloudinary.uploader.destroy(imagename);
+                }
                 await update.save();
                 break;
             case '3':
