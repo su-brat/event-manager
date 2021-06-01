@@ -57,8 +57,10 @@ map.on('dblclick', async function(data) {
     longitude.value = data.lngLat.lng;
     latitude.value = data.lngLat.lat;
     try {
-        let response = await fetch(`https://api.mapbox.com/geocoding/v5/mapbox.places/${data.lngLat.lng},${data.lngLat.lat}.json?types=poi&access_token=${mapboxgl.accessToken}`);
-        let loc = await response.json();
+        // Reverse GeoCoding API end-point
+        const APIendPoint = `https://api.mapbox.com/geocoding/v5/mapbox.places/${data.lngLat.lng},${data.lngLat.lat}.json?types=poi&access_token=${mapboxgl.accessToken}`;
+        const response = await fetch(APIendPoint);
+        const loc = await response.json();
         if(loc.features.length>0) {
             loc.features[0].context.forEach(obj => {
                 if (obj.id.includes('locality'))
