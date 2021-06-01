@@ -65,6 +65,8 @@ map.on('dblclick', async function(data) {
                     document.getElementById('address').value = obj.text;
                 else if (obj.id.includes('place'))
                     document.getElementById('city').value = obj.text;
+                else if (obj.id.includes('postcode'))
+                    document.getElementById('pincode').value = obj.text;
             });
         }
     } catch (err) {
