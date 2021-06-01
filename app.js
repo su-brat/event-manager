@@ -166,7 +166,6 @@ app.get('/profile', checkUser, async (req, res) => {
 });
 
 app.post('/profile', checkUser, upload.array('images'), async (req, res) => {
-    console.log('Helloooooooooooo');
     try {
         switch (req.query.form) {
             case '1':
@@ -180,7 +179,6 @@ app.post('/profile', checkUser, upload.array('images'), async (req, res) => {
                 }, { new: true, runValidators: true });
                 break;
             case '2':
-                console.log("Hi");
                 const ftype = res.locals.halltypes.filter(type => req.body[type]);
                 const newimages = req.files.map(file => ({ url: file.path, filename: file.filename }));
                 const update = await EventHall.findOneAndUpdate({ managerid: res.locals.user._id }, {

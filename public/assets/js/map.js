@@ -46,7 +46,7 @@ geolocate.once('geolocate', function (data) {
     console.log('Tracked...', data.coords.longitude, data.coords.latitude);
 });
 
-map.on('dblclick', function(data) {
+map.on('dblclick', async function(data) {
     if(!marker) {
         marker = new mapboxgl.Marker({
             color: "#FF0000"
@@ -56,19 +56,23 @@ map.on('dblclick', function(data) {
         marker.setLngLat(data.lngLat);
     longitude.value = data.lngLat.lng;
     latitude.value = data.lngLat.lat;
-    /*
     try {
         let response = await fetch(`https://api.mapbox.com/geocoding/v5/mapbox.places/${data.lngLat.lng},${data.lngLat.lat}.json?types=poi&access_token=${mapboxgl.accessToken}`);
         let loc = await response.json();
-        loc.features[0].context.forEach(obj => console.log(obj.id, obj.text));
+        if(loc.features.length>0) {
+            loc.features[0].context.forEach(obj => {
+                if (obj.id.includes('locality'))
+                    document.getElementById('address').value = obj.text;
+                else if (obj.id.includes('place'))
+                    document.getElementById('city').value = obj.text;
+            });
+        }
     } catch (err) {
         console.log(err);
     }
-    */
 });
 
 function clr() {
-    console.log("Clear marker...");
     if (marker) {
         longitude.value = '';
         latitude.value = '';
