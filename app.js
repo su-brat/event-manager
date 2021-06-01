@@ -106,12 +106,11 @@ app.post('/register', async (req, res) => {
                 pan: req.body.pan,
                 password: pwdigest
             })
-            await db.save(user);
+            await user.save();
             req.session.userId = user._id;
             req.flash('success', 'Successfully registered.');
             res.redirect('/dashboard');
         } catch (err) {
-            req.session.destroy();
             console.log(err);
             req.flash('error', err.message);
             res.redirect('/register');
@@ -167,6 +166,7 @@ app.get('/profile', checkUser, async (req, res) => {
 });
 
 app.post('/profile', checkUser, upload.array('images'), async (req, res) => {
+    console.log('Helloooooooooooo');
     try {
         switch (req.query.form) {
             case '1':
@@ -180,14 +180,13 @@ app.post('/profile', checkUser, upload.array('images'), async (req, res) => {
                 }, { new: true, runValidators: true });
                 break;
             case '2':
+                console.log("Hi");
                 const ftype = res.locals.halltypes.filter(type => req.body[type]);
                 const newimages = req.files.map(file => ({ url: file.path, filename: file.filename }));
                 const update = await EventHall.findOneAndUpdate({ managerid: res.locals.user._id }, {
                     managerid: res.locals.user._id,
                     name: req.body.hallname,
-                    address: req.body.address,
-                    city: req.body.city,
-                    pincode: req.body.pincode,
+                    location: { longitude: req.body.longitude, latitude: req.body.latitude, address: req.body.address, city: req.body.city, pincode: req.body.pincode },
                     contact: req.body.contact,
                     size: req.body.size,
                     capacity: req.body.capacity,

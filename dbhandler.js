@@ -11,20 +11,7 @@ const connect = async (database) => {
         });
 }
 
-const save = async (tuple) => {
-    await tuple.save()
-        .then(() => console.log('Saved'))
-        .catch((err) => console.log('Error saving to database: ', err.message));
-}
-
-const close = async () => {
-    await mongoose.connection.close()
-        .then(() => console.log('Database connection closed'))
-        .catch((err) => console.log('Error closing database: ', err.message));
-}
-
 module.exports = {
     connect: connect,
-    save: save,
-    close: close
+    close: mongoose.connection.close
 }
