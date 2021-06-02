@@ -1,312 +1,333 @@
 <!DOCTYPE html>
 <html>
 
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
-    <title>Profile - Brand</title>
-    <link rel="stylesheet" href="assets/bootstrap/css/bootstrap.min.css">
-    <link rel="stylesheet"
-        href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i">
-    <link rel="stylesheet" href="assets/fonts/fontawesome-all.min.css">
-    <link rel="stylesheet" href="assets/fonts/font-awesome.min.css">
-    <link rel="stylesheet" href="assets/fonts/fontawesome5-overrides.min.css">
-    <script src='https://api.mapbox.com/mapbox-gl-js/v2.1.1/mapbox-gl.js'></script>
-    <link href='https://api.mapbox.com/mapbox-gl-js/v2.1.1/mapbox-gl.css' rel='stylesheet' />
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+        <title>Profile - Brand</title>
+        <link rel="stylesheet" href="assets/bootstrap/css/bootstrap.min.css">
+        <link rel="stylesheet"
+            href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i">
+        <link rel="stylesheet" href="assets/fonts/fontawesome-all.min.css">
+        <link rel="stylesheet" href="assets/fonts/font-awesome.min.css">
+        <link rel="stylesheet" href="assets/fonts/fontawesome5-overrides.min.css">
+        <script src='https://api.mapbox.com/mapbox-gl-js/v2.1.1/mapbox-gl.js'></script>
+        <link href='https://api.mapbox.com/mapbox-gl-js/v2.1.1/mapbox-gl.css' rel='stylesheet' />
 
-    <style>
-        input {
-            color: black !important;
-        }
-    </style>
-</head>
+        <style>
+            input {
+                color: black !important;
+            }
+        </style>
+    </head>
 
-<body id="page-top">
-    <div id="wrapper">
-        <%- include('partials/sitemap') %>
-            <div class="d-flex flex-column" id="content-wrapper">
-                <div id="content">
-                    <%- include('partials/header') %>
-                    <div class="container-fluid">
-                        <h3 class="text-dark mb-4">Profile</h3>
-                        <%- include('partials/flash') %>
-                            <div class="card shadow mb-3">
-                                <div class="card-header py-3">
-                                    <p class="text-primary m-0 font-weight-bold">About Hall Owner /
-                                        Manager</p>
-                                </div>
-                                <div class="card-body">
-                                    <form method="POST" action="/profile?form=1">
-                                        <div class="form-row">
-                                            <div class="col">
-                                                <div class="form-group"><label
-                                                        for="first_name"><strong>First
-                                                            Name</strong></label><input
-                                                        class="form-control" type="text" id="first_name"
-                                                        placeholder="Meher" name="first_name"
-                                                        value="<%= user.fname %>" required></div>
-                                            </div>
-                                            <div class="col">
-                                                <div class="form-group"><label
-                                                        for="last_name"><strong>Last
-                                                            Name</strong></label><input
-                                                        class="form-control" type="text" id="last_name"
-                                                        placeholder="Anand" name="last_name"
-                                                        value="<%= user.lname %>" required></div>
-                                            </div>
+    <body id="page-top">
+        <div id="wrapper">
+            <%- include('partials/sitemap') %>
+                <div class="d-flex flex-column" id="content-wrapper">
+                    <div id="content">
+                        <%- include('partials/header') %>
+                            <div class="container-fluid">
+                                <h3 class="text-dark mb-4">Profile</h3>
+                                <%- include('partials/flash') %>
+                                    <div class="card shadow mb-3">
+                                        <div class="card-header py-3">
+                                            <p class="text-primary m-0 font-weight-bold">About Hall Owner /
+                                                Manager</p>
                                         </div>
-                                        <div class="form-row">
-                                            <div class="col-lg-6">
-                                                <div class="form-group"><label for="email"><strong>Email
-                                                            Address</strong></label><input
-                                                        class="form-control" type="email" id="email"
-                                                        placeholder="user@example.com" name="email"
-                                                        value="<%= user.email %>" required></div>
-                                            </div>
-                                            <div class="col-lg-6">
-                                                <div class="form-group"><label for="phone"><strong>Phone
-                                                            Number</strong></label><input
-                                                        class="form-control" type="tel" id="phone"
-                                                        name="phone" placeholder="9999900000"
-                                                        value="<%= user.phone %>" required></div>
-                                            </div>
-                                        </div>
-                                        <div class="form-row">
-                                            <div class="col-md-6">
-                                                <div class="form-group">
-                                                    <label for="aadhaar_num"><strong>Aadhaar
-                                                            Number</strong></label><input class="form-control"
-                                                        type="text" id="aadhaar_num" name="aadhaar_num"
-                                                        minlength="12" maxlength="12" placeholder="123456789123"
-                                                        value="<%= user.aadhaar %>" required>
-                                                </div>
-                                            </div>
-                                            <div class="col-md-6">
-                                                <div class=" form-group">
-                                                    <label for="pan_num"><strong>PAN
-                                                            Number</strong></label><input class="form-control"
-                                                        type="text" id="pan_num" name="pan_num" minlength="10"
-                                                        maxlength="10" placeholder="ABCDE1234F"
-                                                        value="<%= user.pan %>" required>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="form-group"><button class="btn btn-primary btn-sm"
-                                                type="submit">Save</button></div>
-                                    </form>
-                                </div>
-                                <div class="card-footer">
-                                    <small>All the fields are mandatory.</small>
-                                </div>
-                            </div>
-                        
-                            <div class="card shadow mb-3">
-                                <div class="card-header py-3">
-                                    <p class="text-primary m-0 font-weight-bold">About Hall</p>
-                                </div>
-                                <div class="card-body">
-                                    <form method="POST" action="/profile?form=2" enctype="multipart/form-data">
-                                        <div class="form-group">
-                                            <label for="hallname"><strong>Hall Name</strong></label><input class="form-control" type="text"
-                                                id="hallname" name="hallname" <% if(hall) { %>value="<%= hall.name %>"<% } %>>
-                                        </div>
-                                        <div class="form-group">
-                                            <input type="text" style="display: none;" name="longitude" id="longitude" <% if(hall) { %>value="<%=
-                                                hall.location.longitude %>"<% } %>>
-                                                    <input type="text" style="display: none;" name="latitude" id="latitude" <% if(hall) { %>value="<%=
-                                                        hall.location.latitude %>"<% } %>>
-                                                            <div class="text-danger"><em><strong>Double click</strong> to place the pointer.</em> Make sure you
-                                                                place the pointer at correct location, since it helps your potential customers to find and track the hall.
-                                                            </div>
-                                        </div>
-                                        <div class="form-row">
-                                            <div class="col-xl m-1 p-1">
-                                                <div class="form-row p-1">
-                                                    <div id='map' style='width: 350px; height: 230px;'></div>
-                                                </div>
-                                                <div class='form-row p-1'>
-                                                    <button type='button' class='btn btn-sm btn-outline-danger' onclick='clr()'>Clear</button>
-                                                </div>
-                                            </div>
-                                            <div class="col-xl-8">
-                                                <div class="form-group"><label
-                                                        for="address"><strong>Address</strong>*</label><input
-                                                        class="form-control" type="text" id="address"
-                                                        placeholder="38, Gulzhar Nagar, Netaji Chowk"
-                                                        name="address" <% if(hall) { %>value="<%= hall.location.address
-                                                        %>"<% } %> required></div>
+                                        <div class="card-body">
+                                            <form method="POST" action="/profile?form=1">
                                                 <div class="form-row">
                                                     <div class="col">
-                                                        <div class="form-group"><label for="city"><strong>City /
-                                                                    Town</strong>*</label><input
-                                                                class="form-control" type="text" id="city"
-                                                                placeholder="New Delhi" name="city" <% if(hall)
-                                                                { %>value="<%= hall.location.city %>"<% } %> required></div>
+                                                        <div class="form-group"><label for="first_name"><strong>First
+                                                                    Name</strong></label><input class="form-control"
+                                                                type="text" id="first_name" placeholder="Meher"
+                                                                name="first_name" value="<%= user.fname %>" required>
+                                                        </div>
                                                     </div>
                                                     <div class="col">
+                                                        <div class="form-group"><label for="last_name"><strong>Last
+                                                                    Name</strong></label><input class="form-control"
+                                                                type="text" id="last_name" placeholder="Anand"
+                                                                name="last_name" value="<%= user.lname %>" required>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="form-row">
+                                                    <div class="col-lg-6">
+                                                        <div class="form-group"><label for="email"><strong>Email
+                                                                    Address</strong></label><input class="form-control"
+                                                                type="email" id="email" placeholder="user@example.com"
+                                                                name="email" value="<%= user.email %>" required></div>
+                                                    </div>
+                                                    <div class="col-lg-6">
+                                                        <div class="form-group"><label for="phone"><strong>Phone
+                                                                    Number</strong></label><input class="form-control"
+                                                                type="tel" id="phone" name="phone"
+                                                                placeholder="9999900000" value="<%= user.phone %>"
+                                                                required></div>
+                                                    </div>
+                                                </div>
+                                                <div class="form-row">
+                                                    <div class="col-md-6">
+                                                        <div class="form-group">
+                                                            <label for="aadhaar_num"><strong>Aadhaar
+                                                                    Number</strong></label><input class="form-control"
+                                                                type="text" id="aadhaar_num" name="aadhaar_num"
+                                                                minlength="12" maxlength="12" placeholder="123456789123"
+                                                                value="<%= user.aadhaar %>" required>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <div class=" form-group">
+                                                            <label for="pan_num"><strong>PAN
+                                                                    Number</strong></label><input class="form-control"
+                                                                type="text" id="pan_num" name="pan_num" minlength="10"
+                                                                maxlength="10" placeholder="ABCDE1234F"
+                                                                value="<%= user.pan %>" required>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="form-group"><button class="btn btn-primary btn-sm"
+                                                        type="submit">Save</button></div>
+                                            </form>
+                                        </div>
+                                        <div class="card-footer">
+                                            <small>All the fields are mandatory.</small>
+                                        </div>
+                                    </div>
+
+                                    <div class="card shadow mb-3">
+                                        <div class="card-header py-3">
+                                            <p class="text-primary m-0 font-weight-bold">About Hall</p>
+                                        </div>
+                                        <div class="card-body">
+                                            <form method="POST" action="/profile?form=2" enctype="multipart/form-data">
+                                                <div class="form-group">
+                                                    <label for="hallname"><strong>Hall Name</strong></label><input
+                                                        class="form-control" type="text" id="hallname" name="hallname"
+                                                        <% if(hall) { %>value="<%= hall.name %>"<% } %>>
+                                                </div>
+                                                <div class="form-group">
+                                                    <input type="text" style="display: none;" name="longitude"
+                                                        id="longitude" <% if(hall) { %>value="<%=
+                                                        hall.location.longitude %>"<% } %>>
+                                                            <input type="text" style="display: none;" name="latitude"
+                                                                id="latitude" <% if(hall) { %>value="<%=
+                                                                hall.location.latitude %>"<% } %>>
+                                                                    <div class="text-danger"><em><strong>Double
+                                                                                click</strong> to place the
+                                                                            pointer.</em> Make sure you
+                                                                        place the pointer at correct location, since it
+                                                                        helps your potential customers to find and track
+                                                                        the hall.
+                                                                    </div>
+                                                </div>
+                                                <div class="form-row">
+                                                    <div class="col-xl m-1 p-1">
+                                                        <div class="form-row p-1">
+                                                            <div id='map' style='width: 350px; height: 230px;'></div>
+                                                        </div>
+                                                        <div class='form-row p-1'>
+                                                            <button type='button' class='btn btn-sm btn-outline-danger'
+                                                                onclick='clr()'>Clear</button>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-xl-8">
                                                         <div class="form-group"><label
-                                                                for="pincode"><strong>Pincode</strong>*</label><input
-                                                                class="form-control" type="text" id="pincode"
-                                                                placeholder="123456" name="pincode"
-                                                                maxlength="6" minlength="6" <% if(hall) {
-                                                                %>value="<%= hall.location.pincode %>"<% } %> required></div>
+                                                                for="address"><strong>Address</strong>*</label><input
+                                                                class="form-control" type="text" id="address"
+                                                                placeholder="38, Gulzhar Nagar, Netaji Chowk"
+                                                                name="address" <% if(hall) { %>value="<%=
+                                                                hall.location.address %>"<% } %> required></div>
+                                                        <div class="form-row">
+                                                            <div class="col">
+                                                                <div class="form-group"><label for="city"><strong>City /
+                                                                            Town</strong>*</label><input
+                                                                        class="form-control" type="text" id="city"
+                                                                        placeholder="New Delhi" name="city" <% if(hall)
+                                                                        { %>value="<%= hall.location.city %>"<% } %>
+                                                                            required></div>
+                                                            </div>
+                                                            <div class="col">
+                                                                <div class="form-group"><label
+                                                                        for="pincode"><strong>Pincode</strong>*</label><input
+                                                                        class="form-control" type="text" id="pincode"
+                                                                        placeholder="123456" name="pincode"
+                                                                        maxlength="6" minlength="6" <% if(hall) {
+                                                                        %>value="<%= hall.location.pincode %>"<% } %>
+                                                                            required></div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="form-group"><label for="contact"><strong>Contact
+                                                                    Number</strong></label>*<input class="form-control"
+                                                                type="tel" id="contact" placeholder="9999900000"
+                                                                name="contact" <% if(hall) { %>value="<%= hall.contact
+                                                                %>"<% } %> required></div>
                                                     </div>
                                                 </div>
-                                                <div class="form-group"><label for="contact"><strong>Contact
-                                                            Number</strong></label>*<input class="form-control"
-                                                        type="tel" id="contact" placeholder="9999900000"
-                                                        name="contact" <% if(hall) { %>value="<%= hall.contact
-                                                        %>"<% } %> required></div>
-                                            </div>
-                                        </div>
-                                        <div class="form-row">
-                                            <div class="col-sm-6">
-                                                <div class="form-group">
-                                                    <label for="size"><strong>Area</strong> (in
-                                                        sq.ft)*</label>
-                                                    <input type="number" class="form-control" id="size"
-                                                        placeholder="4500" name="size" <% if(hall) {
-                                                        %>value="<%= hall.size %>"<% } %> required>
-                                                </div>
-                                            </div>
-                                            <div class="col-sm-6">
-                                                <div class="form-group">
-                                                    <label for="capacity"><strong>Capacity</strong>*</label>
-                                                    <input type="number" class="form-control" id="capacity" placeholder="1000" name="capacity" <% if(hall) { %>value="<%=
-                                                        hall.capacity %>"<% } %> required>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="form-row">
-                                            <div class="col-sm-6">
-                                                <div class="form-group">
-                                                    <label for="shifts"><strong>Shifts</strong>*</label>
-                                                    <input type="number" id="shifts" name="shifts" placeholder="3" class="form-control" <% if(hall) { %>value="<%= hall.shift %>"<% } %> required>
-                                                </div>
-                                            </div>
-                                            <div class="col-sm-6">
-                                                <div class="form-group">
-                                                    <label
-                                                        for="costpershift"><strong>Cost/Shift</strong>
-                                                        (in ₹)*</label>
-                                                    <input type="number" id="costpershift"
-                                                        name="costpershift" class="form-control"
-                                                        placeholder="25000" <% if(hall) { %>value="<%=
-                                                        hall.pricepershift %>"<% } %> required>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="form-group">
-                                            <label><strong>Functions type</strong></label>    
-                                            <% for (halltype of halltypes) { %>
-                                            <div class="form-check">
-                                                <input type="checkbox" class="form-check-input" name="<%= halltype %>" id="<%= halltype %>" <% if (hall && hall.functiontype.includes(halltype)) { %> checked <% } %>>
-                                                <label for="<%= halltype %>" class="form-check-label"><%= halltype %></label>
-                                            </div>
-                                            <% } %>
-                                        </div>
-                                        <div class="form-group">
-                                            <label for="desc"><strong>Description</strong></label>
-                                            <textarea class="form-control" id="desc" name="desc"
-                                                rows="4"><% if(hall) { %><%= hall.description %><% } %></textarea>
-                                        </div>
-                                        <div class="form-group">
-                                            <label for="input-files"><strong>Add Images</strong></label>
-                                            <div class="file-loading">
-                                                <input id="input-files" type="file" id="images" name="images" multiple>
-                                            </div>
-                                            <div class="text-danger"><em>At <strong>max 5</strong> images can be uploaded.</em></div>
-                                        </div>
-                                        <% if (hall && hall.images && hall.images.length>0) { %>
-                                            <% for (image of hall.images) { %>
-                                                <div class="form-check">
-                                                    <div><img src="<%= image.thumbnail %>"></div>
-                                                    <input type="checkbox" class="form-check-input" name="<%= image.filename %>" id="<%= image.filename %>">
-                                                    <label for="<%= image.filename %>">Select to delete</label>
-                                                </div>
-                                            <% } %>
-                                            <div class="text-danger"><em>(Selected images will be deleted.)</em></div>
-                                        <% } else { %>
-                                            <div class="form-row"><label class="text-secondary"><em>No images uploaded yet.</em></label></div>
-                                        <% } %>
-                                        <div class="form-group"><button class="btn btn-primary btn-sm"
-                                                type="submit">Save</button></div>
-                                    </form>
-                                </div>
-                                <div class="card-footer">
-                                    <small>* fields are mandatory.</small>
-                                </div>
-                            </div>
-                            <div class="card shadow mb-3">
-                                <div class="card-header py-3">
-                                    <p class="text-primary m-0 font-weight-bold">Bank Details</p>
-                                </div>
-                                <div class="card-body">
-                                    <form method="POST" action="/profile?form=3">
-                                        <div class="row">
-                                            <div class="col-md-12">
                                                 <div class="form-row">
-                                                    <div class="col-md-6">
+                                                    <div class="col-sm-6">
                                                         <div class="form-group">
-                                                            <label for="acholdername"><strong>A/c Holder
-                                                                    Name</strong></label>
-                                                            <input type="text" class="form-control"
-                                                                id="acholdername" name="acholdername"
-                                                                placeholder="Meher Anand" <% if(account)
-                                                                { %>value="<%= account.name %>"<% } %> required>
+                                                            <label for="size"><strong>Area</strong> (in
+                                                                sq.ft)*</label>
+                                                            <input type="number" class="form-control" id="size"
+                                                                placeholder="4500" name="size" <% if(hall) { %>value="
+                                                            <%= hall.size %>"<% } %> required>
                                                         </div>
                                                     </div>
-                                                    <div class="col-md-6">
+                                                    <div class="col-sm-6">
                                                         <div class="form-group">
-                                                            <label for="acnum"><strong>A/c
-                                                                    Number</strong></label>
-                                                            <input type="number" id="acnum" name="acnum"
-                                                                class="form-control"
-                                                                placeholder="1234567890" <% if(account)
-                                                                { %>value="<%= account.accno %>"<% } %> required>
+                                                            <label for="capacity"><strong>Capacity</strong>*</label>
+                                                            <input type="number" class="form-control" id="capacity"
+                                                                placeholder="1000" name="capacity" <% if(hall) {
+                                                                %>value="<%= hall.capacity %>"<% } %> required>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="form-row">
+                                                    <div class="col-sm-6">
+                                                        <div class="form-group">
+                                                            <label for="shifts"><strong>Shifts</strong>*</label>
+                                                            <input type="number" id="shifts" name="shifts"
+                                                                placeholder="3" class="form-control" <% if(hall) {
+                                                                %>value="<%= hall.shift %>"<% } %> required>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-sm-6">
+                                                        <div class="form-group">
+                                                            <label for="costpershift"><strong>Cost/Shift</strong>
+                                                                (in ₹)*</label>
+                                                            <input type="number" id="costpershift" name="costpershift"
+                                                                class="form-control" placeholder="25000" <% if(hall) {
+                                                                %>value="<%= hall.pricepershift %>"<% } %> required>
                                                         </div>
                                                     </div>
                                                 </div>
                                                 <div class="form-group">
-                                                    <label for="ifsc"><strong>IFS Code</strong></label>
-                                                    <input class="form-control" id="ifsc" name="ifsc"
-                                                        type="text" placeholder="SBIN0000000" <%
-                                                        if(account) { %>value="<%= account.ifsc %>"<% }
-                                                            %> required>
+                                                    <label><strong>Functions type</strong></label>
+                                                    <% for (halltype of halltypes) { %>
+                                                        <div class="form-check">
+                                                            <input type="checkbox" class="form-check-input"
+                                                                name="<%= halltype %>" id="<%= halltype %>" <% if (hall
+                                                                && hall.functiontype.includes(halltype)) { %> checked <%
+                                                                } %>>
+                                                                <label for="<%= halltype %>" class="form-check-label">
+                                                                    <%= halltype %>
+                                                                </label>
+                                                        </div>
+                                                        <% } %>
                                                 </div>
-                                            </div>
+                                                <div class="form-group">
+                                                    <label for="desc"><strong>Description</strong></label>
+                                                    <textarea class="form-control" id="desc" name="desc"
+                                                        rows="4"><% if(hall) { %><%= hall.description %><% } %></textarea>
+                                                </div>
+                                                <div class="form-group">
+                                                    <label for="input-files"><strong>Add Images</strong></label>
+                                                    <div class="file-loading">
+                                                        <input id="input-files" type="file" id="images" name="images"
+                                                            multiple>
+                                                    </div>
+                                                    <div class="text-danger"><em>At <strong>max 5</strong> images can be
+                                                            uploaded.</em></div>
+                                                </div>
+                                                <% if (hall && hall.images && hall.images.length>0) { %>
+                                                    <% for (image of hall.images) { %>
+                                                        <div class="form-check">
+                                                            <div><img src="<%= image.thumbnail %>"></div>
+                                                            <input type="checkbox" class="form-check-input"
+                                                                name="<%= image.filename %>" id="<%= image.filename %>">
+                                                            <label for="<%= image.filename %>">Select to delete</label>
+                                                        </div>
+                                                        <% } %>
+                                                            <div class="text-danger"><em>(Selected images will be
+                                                                    deleted.)</em></div>
+                                                            <% } else { %>
+                                                                <div class="form-row"><label
+                                                                        class="text-secondary"><em>No images uploaded
+                                                                            yet.</em></label></div>
+                                                                <% } %>
+                                                                    <div class="form-group"><button
+                                                                            class="btn btn-primary btn-sm"
+                                                                            type="submit">Save</button></div>
+                                            </form>
                                         </div>
-                                        <div class="form-group"><button class="btn btn-primary btn-sm"
-                                                type="submit">Save</button>
+                                        <div class="card-footer">
+                                            <small>* fields are mandatory.</small>
                                         </div>
-                                    </form>
-                                </div>
-                                <div class="card-footer">
-                                    <small>All the fields are mandatory.</small>
-                                </div>
+                                    </div>
+                                    <div class="card shadow mb-3">
+                                        <div class="card-header py-3">
+                                            <p class="text-primary m-0 font-weight-bold">Bank Details</p>
+                                        </div>
+                                        <div class="card-body">
+                                            <form method="POST" action="/profile?form=3">
+                                                <div class="row">
+                                                    <div class="col-md-12">
+                                                        <div class="form-row">
+                                                            <div class="col-md-6">
+                                                                <div class="form-group">
+                                                                    <label for="acholdername"><strong>A/c Holder
+                                                                            Name</strong></label>
+                                                                    <input type="text" class="form-control"
+                                                                        id="acholdername" name="acholdername"
+                                                                        placeholder="Meher Anand" <% if(account) {
+                                                                        %>value="<%= account.name %>"<% } %> required>
+                                                                </div>
+                                                            </div>
+                                                            <div class="col-md-6">
+                                                                <div class="form-group">
+                                                                    <label for="acnum"><strong>A/c
+                                                                            Number</strong></label>
+                                                                    <input type="number" id="acnum" name="acnum"
+                                                                        class="form-control" placeholder="1234567890" <%
+                                                                        if(account) { %>value="<%= account.accno %>"<% }
+                                                                            %> required>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="form-group">
+                                                            <label for="ifsc"><strong>IFS Code</strong></label>
+                                                            <input class="form-control" id="ifsc" name="ifsc"
+                                                                type="text" placeholder="SBIN0000000" <% if(account) {
+                                                                %>value="<%= account.ifsc %>"<% } %> required>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="form-group"><button class="btn btn-primary btn-sm"
+                                                        type="submit">Save</button>
+                                                </div>
+                                            </form>
+                                        </div>
+                                        <div class="card-footer">
+                                            <small>All the fields are mandatory.</small>
+                                        </div>
+                                    </div>
+                                    <div class="card shadow mb-3">
+                                        <div class="card-header py-3">
+                                            <p class="text-primary m-0 font-weight-bold">Permanantly Delete Account</p>
+                                        </div>
+                                        <div class="card-body">
+                                            <button class="btn btn-sm btn-outline-danger" type="button"
+                                                data-toggle="modal" data-target="#deleteWarn">Delete Account</button>
+                                        </div>
+                                    </div>
                             </div>
-                            <div class="card shadow mb-3">
-                                <div class="card-header py-3">
-                                    <p class="text-primary m-0 font-weight-bold">Permanantly Delete Account</p>
-                                </div>
-                                <div class="card-body">
-                                    <button class="btn btn-sm btn-outline-danger" type="button" data-toggle="modal" data-target="#deleteWarn">Delete Account</button>
-                                </div>
-                            </div>
-                        </div>
                     </div>
                     <%- include('partials/footer') %>
                 </div>
-                <a class="border rounded d-inline scroll-to-top" href="#page-top"><i
-                        class="fas fa-angle-up"></i></a>
-            </div>
-            <%- include('partials/modal') %>
+                <a class="border rounded d-inline scroll-to-top" href="#page-top"><i class="fas fa-angle-up"></i></a>
+        </div>
+        <%- include('partials/modal') %>
 
             <!-- Load the `mapbox-gl-geocoder` plugin. -->
-            <script src="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v4.7.0/mapbox-gl-geocoder.min.js"></script>
+            <script
+                src="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v4.7.0/mapbox-gl-geocoder.min.js"></script>
             <link rel="stylesheet"
-                href="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v4.7.0/mapbox-gl-geocoder.css" type="text/css">
-            
+                href="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v4.7.0/mapbox-gl-geocoder.css"
+                type="text/css">
+
             <!-- Promise polyfill script is required -->
             <!-- to use Mapbox GL Geocoder in IE 11. -->
             <script src="https://cdn.jsdelivr.net/npm/es6-promise@4/dist/es6-promise.min.js"></script>
@@ -325,6 +346,6 @@
             <script src="assets/js/bs-init.js"></script>
             <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-easing/1.4.1/jquery.easing.js"></script>
             <script src="assets/js/theme.js"></script>
-</body>
+    </body>
 
 </html>

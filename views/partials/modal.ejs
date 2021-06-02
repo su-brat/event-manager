@@ -12,7 +12,8 @@
                 <p>Do you wish to <em><strong>log out</strong></em>?</p>
             </div>
             <div class="modal-footer">
-                <form method="POST" action="/logout"><button type="submit" class="btn btn-sm btn-outline-danger">Yes</button></form>
+                <form method="POST" action="/logout"><button type="submit"
+                        class="btn btn-sm btn-outline-danger">Yes</button></form>
                 <button type="button" class="btn btn-sm btn-outline-primary" data-dismiss="modal">Cancel</button>
             </div>
         </div>
@@ -31,7 +32,8 @@
             </div>
             <div class="modal-body">
                 <p><em>Do you really wish to <strong>delete your account permanently?</strong></em></p>
-                <p class="text-danger"><strong>Warning:</strong> All your data will be deleted and cannot be retrieved.</p>
+                <p class="text-danger"><strong>Warning:</strong> All your data will be deleted and cannot be retrieved.
+                </p>
                 <form action="/deleteAccount" method="POST">
                     <input type="password" class="form-control" id="pwd" name="pwd" placeholder="Enter password">
             </div>
