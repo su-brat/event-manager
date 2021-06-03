@@ -33,40 +33,51 @@
                                     <h4 class="text-dark mb-4">Create an Account!</h4>
                                 </div>
                                 <%- include('partials/flash') %>
-                                    <form class="user mb-3" method="POST" action="/register">
+                                    <form class="user mb-1 needs-validation" method="POST" action="/register" novalidate>
                                         <div class="form-group row">
                                             <div class="col-sm-6 mb-3 mb-sm-0"><input
                                                     class="form-control form-control-user" type="text" id="first_name"
-                                                    placeholder="First Name" name="first_name">
+                                                    placeholder="First Name" name="first_name" required><div class="invalid-feedback">Enter a valid input</div>
                                             </div>
                                             <div class="col-sm-6"><input class="form-control form-control-user"
-                                                    type="text" id="last_name" placeholder="Last Name" name="last_name">
+                                                    type="text" id="last_name" placeholder="Last Name" name="last_name" required><div class="invalid-feedback">Enter a valid input</div>
                                             </div>
                                         </div>
                                         <div class="form-group"><input class="form-control form-control-user"
                                                 type="email" id="email" aria-describedby="emailHelp"
-                                                placeholder="Email Address" name="email"></div>
+                                                placeholder="Email Address" name="email" required><div class="invalid-feedback">Enter a valid input</div></div>
                                         <div class="form-group row">
                                             <div class="col-sm-6 mb-3 mb-sm-0"><input
                                                     class="form-control form-control-user" type="password" id="password"
-                                                    placeholder="Password" name="password"></div>
+                                                    placeholder="Password" name="password" required><div class="invalid-feedback">Enter a valid input</div></div>
                                             <div class="col-sm-6"><input class="form-control form-control-user"
                                                     type="password" id="password_repeat" placeholder="Repeat Password"
-                                                    name="password_repeat">
-                                            </div>
+                                                    name="password_repeat" required><div class="invalid-feedback">Enter a valid input</div></div>
                                         </div>
                                         <div class="form-group row">
                                             <div class="col-md-6 mb-3 mb-md-0"><input
                                                     class="form-control form-control-user" type="text" id="aadhaar"
-                                                    placeholder="Aadhaar Number" name="aadhaar"></div>
+                                                    placeholder="Aadhaar Number" name="aadhaar" required><div class="invalid-feedback">Enter a valid input</div></div>
                                             <div class="col-md-6"><input class="form-control form-control-user"
-                                                    type="text" id="pan" placeholder="PAN" name="pan"></div>
+                                                    type="text" id="pan" placeholder="PAN" name="pan" required><div class="invalid-feedback">Enter a valid input</div></div>
                                         </div>
                                         <div class="form-group"><input class="form-control form-control-user"
-                                                type="number" id="phone" placeholder="Phone Number" name="phone"></div>
+                                                type="number" id="phone" placeholder="Phone Number" name="phone" required><div class="invalid-feedback">Enter a valid input</div></div>
                                         <button class="btn btn-primary btn-block text-white btn-user"
-                                            type="submit">Register
+                                            type="button" onclick="sendOTP()">Register
                                             Account</button>
+                                        <div class="form-group m-3" style="display: none;" id="otpbox">
+                                            <div class="mb-1"><input class="form-control form-control-user" type="text" id="otp" placeholder="Enter OTP sent to your phone" required><div class="invalid-feedback">Enter a valid input</div></div>
+                                            <div class="m-3" id="countdownmsg" style="display: none;">The OTP expires in <strong><span id="timeout"></span></strong> seconds.</div>
+                                            <div class="form-row">
+                                                <div class="col-sm-6 mt-2">
+                                                    <button class="btn btn-success btn-block btn-user" type="submit">Submit</button>
+                                                </div>
+                                                <div class="col-sm-6 mt-2">
+                                                    <button class="btn btn-primary btn-block btn-user" type="button" onclick="resendOTP()" id="resend" style="display: none;">Resend</button>
+                                                </div>
+                                            </div>
+                                        </div>
                                     </form>
                                     <div class="text-center"><small>Already have an account?</small> <a class="small"
                                             href="/login">Login</a></div>
@@ -76,6 +87,8 @@
                 </div>
             </div>
         </div>
+        <script src="assets/js/form-validator.js"></script>
+        <script src="assets/js/register-otp.js"></script>
         <script src="assets/js/jquery.min.js"></script>
         <script src="assets/bootstrap/js/bootstrap.min.js"></script>
         <script src="assets/js/chart.min.js"></script>

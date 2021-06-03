@@ -24,6 +24,12 @@ const BankAccount = require('./models/bankAccount');
 
 const sessionConfig = require('./session-config');
 
+const validateOTP = (req, res, next) => {
+    // Code to validate OTP
+
+    next();
+}
+
 const hashedpwd = async (pwd) => await bcrypt.hash(pwd, 12);
 
 const authenticate = async (user, pwd) => await bcrypt.compare(pwd, user.password);
@@ -82,7 +88,7 @@ app.get('/register', (req, res) => {
         res.render('register');
 });
 
-app.post('/register', async (req, res) => {
+app.post('/register', validateOTP, async (req, res) => {
     if (req.body.password == req.body.password_repeat) {
         try {
             const pwdigest = await hashedpwd(req.body.password);

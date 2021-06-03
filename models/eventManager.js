@@ -19,14 +19,14 @@ const eventManagerSchema = mongoose.Schema({
         type: String,
         required: true,
         unique: true,
-        validate: [validator.isEmail, 'Please enter your valid email.']
+        validate: [validator.isEmail, 'Please enter a valid email.']
     },
     aadhaar: {
         type: String,
         maxLength: 12,
         required: true,
         unique: true,
-        validate: [aadhaarvValidator.isValidNumber, 'Please enter your valid aadhaar number.']
+        validate: [aadhaarvValidator.isValidNumber, 'Please enter a valid aadhaar number.']
     },
     pan: {
         type: String,

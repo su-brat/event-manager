@@ -36,7 +36,7 @@
                                                 Manager</p>
                                         </div>
                                         <div class="card-body">
-                                            <form method="POST" action="/profile?form=1">
+                                            <form method="POST" action="/profile?form=1" class="needs-validation" novalidate>
                                                 <div class="form-row">
                                                     <div class="col">
                                                         <div class="form-group"><label for="first_name"><strong>First
@@ -102,11 +102,12 @@
                                             <p class="text-primary m-0 font-weight-bold">About Hall</p>
                                         </div>
                                         <div class="card-body">
-                                            <form method="POST" action="/profile?form=2" enctype="multipart/form-data">
+                                            <form method="POST" action="/profile?form=2" enctype="multipart/form-data" class="needs-validation" novalidate>
                                                 <div class="form-group">
                                                     <label for="hallname"><strong>Hall Name</strong></label><input
                                                         class="form-control" type="text" id="hallname" name="hallname"
                                                         <% if(hall) { %>value="<%= hall.name %>"<% } %>>
+                                                        <div class="valid-feedback"></div>
                                                 </div>
                                                 <div class="form-group">
                                                     <input type="text" style="display: none;" name="longitude"
@@ -115,9 +116,10 @@
                                                             <input type="text" style="display: none;" name="latitude"
                                                                 id="latitude" <% if(hall) { %>value="<%=
                                                                 hall.location.latitude %>"<% } %>>
-                                                                    <div class="text-danger"><em><strong>Double
+                                                                <div class="valid-feedback"></div>
+                                                                    <div class="text-warning"><strong>Double
                                                                                 click</strong> to place the
-                                                                            pointer.</em> Make sure you
+                                                                            pointer. Make sure you
                                                                         place the pointer at correct location, since it
                                                                         helps your potential customers to find and track
                                                                         the hall.
@@ -139,7 +141,7 @@
                                                                 class="form-control" type="text" id="address"
                                                                 placeholder="38, Gulzhar Nagar, Netaji Chowk"
                                                                 name="address" <% if(hall) { %>value="<%=
-                                                                hall.location.address %>"<% } %> required></div>
+                                                                hall.location.address %>"<% } %> required><div class="invalid-feedback">Enter a valid input</div></div>
                                                         <div class="form-row">
                                                             <div class="col">
                                                                 <div class="form-group"><label for="city"><strong>City /
@@ -147,7 +149,7 @@
                                                                         class="form-control" type="text" id="city"
                                                                         placeholder="New Delhi" name="city" <% if(hall)
                                                                         { %>value="<%= hall.location.city %>"<% } %>
-                                                                            required></div>
+                                                                            required><div class="invalid-feedback">Enter a valid input</div></div>
                                                             </div>
                                                             <div class="col">
                                                                 <div class="form-group"><label
@@ -156,14 +158,14 @@
                                                                         placeholder="123456" name="pincode"
                                                                         maxlength="6" minlength="6" <% if(hall) {
                                                                         %>value="<%= hall.location.pincode %>"<% } %>
-                                                                            required></div>
+                                                                            required><div class="invalid-feedback">Enter a valid input</div></div>
                                                             </div>
                                                         </div>
                                                         <div class="form-group"><label for="contact"><strong>Contact
                                                                     Number</strong></label>*<input class="form-control"
                                                                 type="tel" id="contact" placeholder="9999900000"
                                                                 name="contact" <% if(hall) { %>value="<%= hall.contact
-                                                                %>"<% } %> required></div>
+                                                                %>"<% } %> required><div class="invalid-feedback">Enter a valid input</div></div>
                                                     </div>
                                                 </div>
                                                 <div class="form-row">
@@ -173,7 +175,7 @@
                                                                 sq.ft)*</label>
                                                             <input type="number" class="form-control" id="size"
                                                                 placeholder="4500" name="size" <% if(hall) { 
-                                                                %>value="<%= hall.size %>"<% } %> required>
+                                                                %>value="<%= hall.size %>"<% } %> required><div class="invalid-feedback">Enter a valid input</div>
                                                         </div>
                                                     </div>
                                                     <div class="col-sm-6">
@@ -181,7 +183,7 @@
                                                             <label for="capacity"><strong>Capacity</strong>*</label>
                                                             <input type="number" class="form-control" id="capacity"
                                                                 placeholder="1000" name="capacity" <% if(hall) {
-                                                                %>value="<%= hall.capacity %>"<% } %> required>
+                                                                %>value="<%= hall.capacity %>"<% } %> required><div class="invalid-feedback">Enter a valid input</div>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -191,7 +193,7 @@
                                                             <label for="shifts"><strong>Shifts</strong>*</label>
                                                             <input type="number" id="shifts" name="shifts"
                                                                 placeholder="3" class="form-control" <% if(hall) {
-                                                                %>value="<%= hall.shift %>"<% } %> required>
+                                                                %>value="<%= hall.shift %>"<% } %> required><div class="invalid-feedback">Enter a valid input</div>
                                                         </div>
                                                     </div>
                                                     <div class="col-sm-6">
@@ -200,7 +202,7 @@
                                                                 (in ₹)*</label>
                                                             <input type="number" id="costpershift" name="costpershift"
                                                                 class="form-control" placeholder="25000" <% if(hall) {
-                                                                %>value="<%= hall.pricepershift %>"<% } %> required>
+                                                                %>value="<%= hall.pricepershift %>"<% } %> required><div class="invalid-feedback">Enter a valid input</div>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -221,7 +223,7 @@
                                                 <div class="form-group">
                                                     <label for="desc"><strong>Description</strong></label>
                                                     <textarea class="form-control" id="desc" name="desc"
-                                                        rows="4"><% if(hall) { %><%= hall.description %><% } %></textarea>
+                                                        rows="4"><% if(hall) { %><%= hall.description %><% } %></textarea><div class="invalid-feedback">Enter a valid input</div>
                                                 </div>
                                                 <div class="form-group">
                                                     <label for="input-files"><strong>Add Images</strong></label>
@@ -229,8 +231,8 @@
                                                         <input id="input-files" type="file" id="images" name="images"
                                                             multiple>
                                                     </div>
-                                                    <div class="text-danger"><em>At <strong>max 5</strong> images can be
-                                                            uploaded.</em></div>
+                                                    <div class="text-warning">At <strong>max 5</strong> images can be
+                                                            uploaded.</div>
                                                 </div>
                                                 <% if (hall && hall.images && hall.images.length>0) { %>
                                                     <% for (let image of hall.images) { %>
@@ -241,12 +243,12 @@
                                                             <label for="<%= image.filename %>">Select to delete</label>
                                                         </div>
                                                         <% } %>
-                                                            <div class="text-danger"><em>(Selected images will be
-                                                                    deleted.)</em></div>
+                                                            <div class="text-warning">Selected images will be
+                                                                    deleted.</div>
                                                             <% } else { %>
                                                                 <div class="form-row"><label
-                                                                        class="text-secondary"><em>No images uploaded
-                                                                            yet.</em></label></div>
+                                                                        class="text-secondary">No images uploaded
+                                                                            yet.</label></div>
                                                                 <% } %>
                                                                     <div class="form-group"><button
                                                                             class="btn btn-primary btn-sm"
@@ -262,7 +264,7 @@
                                             <p class="text-primary m-0 font-weight-bold">Bank Details</p>
                                         </div>
                                         <div class="card-body">
-                                            <form method="POST" action="/profile?form=3">
+                                            <form method="POST" action="/profile?form=3" class="needs-validation" novalidate>
                                                 <div class="row">
                                                     <div class="col-md-12">
                                                         <div class="form-row">
@@ -273,7 +275,7 @@
                                                                     <input type="text" class="form-control"
                                                                         id="acholdername" name="acholdername"
                                                                         placeholder="Meher Anand" <% if(account) {
-                                                                        %>value="<%= account.name %>"<% } %> required>
+                                                                        %>value="<%= account.name %>"<% } %> required><div class="invalid-feedback">Enter a valid input</div>
                                                                 </div>
                                                             </div>
                                                             <div class="col-md-6">
@@ -283,7 +285,7 @@
                                                                     <input type="number" id="acnum" name="acnum"
                                                                         class="form-control" placeholder="1234567890" <%
                                                                         if(account) { %>value="<%= account.accno %>"<% }
-                                                                            %> required>
+                                                                            %> required><div class="invalid-feedback"></div>
                                                                 </div>
                                                             </div>
                                                         </div>
@@ -291,7 +293,7 @@
                                                             <label for="ifsc"><strong>IFS Code</strong></label>
                                                             <input class="form-control" id="ifsc" name="ifsc"
                                                                 type="text" placeholder="SBIN0000000" <% if(account) {
-                                                                %>value="<%= account.ifsc %>"<% } %> required>
+                                                                %>value="<%= account.ifsc %>"<% } %> required><div class="invalid-feedback">Enter a valid input</div>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -346,6 +348,7 @@
             <script src="assets/js/bs-init.js"></script>
             <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-easing/1.4.1/jquery.easing.js"></script>
             <script src="assets/js/theme.js"></script>
+            <script src="assets/js/form-validator.js"></script>
     </body>
 
 </html>
