@@ -8,13 +8,13 @@ const flash = require('connect-flash');
 if (process.env.NODE_ENV!=='PRODUCTION')
     require('dotenv').config();
 
-const { storage, cloudinary } = require('./cloudinaryconfig');
+const { storage, cloudinary } = require('./cloudinary-config');
 const multer = require('multer');
 const upload = multer({ storage: storage });
 
 const methodOverride = require('method-override');
 
-const db = require('./dbhandler');
+const db = require('./db-handler');
 
 db.connect('eventData');
 
@@ -22,18 +22,7 @@ const EventManager = require('./models/eventManager');
 const EventHall = require('./models/eventHall');
 const BankAccount = require('./models/bankAccount');
 
-const weekinmillis = (weeks = 1) => 1000 * 60 * 60 * 24 * 7 * weeks;
-
-
-const sessionConfig = {
-    secret: process.env.SESSION_SECRET,
-    resave: false,
-    saveUninitialized: true,
-    cookie: {
-        expires: Date.now() + weekinmillis(),
-        maxAge: weekinmillis()
-    }
-}
+const sessionConfig = require('./session-config');
 
 const hashedpwd = async (pwd) => await bcrypt.hash(pwd, 12);
 
@@ -246,7 +235,7 @@ app.post('/deleteAccount', checkUser, async (req, res) => {
         if (verified) {
             console.log('Deleting account...');
             for (let hall of halls) {
-                for (image of hall.images)
+                for (let image of hall.images)
                     await cloudinary.uploader.destroy(image.filename);
             }
             await EventManager.deleteOne({ _id: userId });
