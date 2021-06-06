@@ -4,6 +4,7 @@ const path = require('path');
 const session = require('express-session');
 const bcrypt = require('bcrypt');
 const flash = require('connect-flash');
+const helmet = require('helmet');
 
 const { body, validationResult } = require('express-validator');
 
@@ -76,6 +77,10 @@ app.use(
     },
   }),
 );
+
+app.use(helmet({
+    contentSecurityPolicy: false    //to enable undefined sources such as mapbox, cloudinary etc.
+}));
 
 //to override POST request for DELETE, PUT, PATCH etc.
 app.use(methodOverride('_method'));
