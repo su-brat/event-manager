@@ -5,6 +5,8 @@ const session = require('express-session');
 const bcrypt = require('bcrypt');
 const flash = require('connect-flash');
 
+const { body, validationResult } = require('express-validator');
+
 const mongoSanitize = require('express-mongo-sanitize');
 
 if (process.env.NODE_ENV!=='PRODUCTION')
@@ -43,6 +45,13 @@ const checkUser = (req, res, next) => {
         res.redirect('/');
 }
 
+// Throws error if input validation fails
+const checkInputValidation = req => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        throw new Error('Missing/Invalid input field(s).');
+    }
+}
 
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, '/views'));
@@ -104,30 +113,42 @@ app.get('/register', (req, res) => {
         res.render('register');
 });
 
-app.post('/register', validateOTP, async (req, res) => {
-    if (req.body.password == req.body.password_repeat) {
-        try {
-            const pwdigest = await hashedpwd(req.body.password);
-            user = new EventManager({
-                fname: req.body.first_name,
-                lname: req.body.last_name,
-                email: req.body.email,
-                phone: req.body.phone,
-                aadhaar: req.body.aadhaar,
-                pan: req.body.pan,
-                password: pwdigest
-            })
-            await user.save();
-            req.session.userId = user._id;
-            req.flash('success', 'Successfully registered.');
-            res.redirect('/dashboard');
-        } catch (err) {
-            console.log(err);
-            req.flash('error', err.message);
-            res.redirect('/register');
-        }
-    }
-})
+app.post('/register', 
+        body('first_name').isString().trim().escape(), 
+        body('last_name').isString().trim().escape(), 
+        body('password').isLength({ min: 6 }).escape(),
+        body('password_repeat').isLength({ min: 6 }).escape(),
+        body('email').isEmail(),
+        body('phone').isMobilePhone(),
+        body('aadhaar').isNumeric(),
+        body('pan').isAlphanumeric(),
+        validateOTP, 
+        async (req, res) => {
+            try {
+                if (req.body.password == req.body.password_repeat) {
+                    checkInputValidation(req);
+                    const pwdigest = await hashedpwd(req.body.password);
+                    user = new EventManager({
+                        fname: req.body.first_name,
+                        lname: req.body.last_name,
+                        email: req.body.email,
+                        phone: req.body.phone,
+                        aadhaar: req.body.aadhaar,
+                        pan: req.body.pan,
+                        password: pwdigest
+                    })
+                    await user.save();
+                    req.session.userId = user._id;
+                    req.flash('success', 'Successfully registered.');
+                    res.redirect('/dashboard');
+                } else
+                    throw new Error('Password and repeat password do not match.');
+            } catch (err) {
+                console.log(err);
+                req.flash('error', err.message);
+                res.redirect('/register');
+            }
+        })
 
 app.get('/login', (req, res) => {
     if (res.locals.user)
@@ -136,28 +157,32 @@ app.get('/login', (req, res) => {
         res.render('login');
 });
 
-app.post('/login', async (req, res) => {
-    try {
-        const pwd = req.body.password;
-        user = await EventManager.findOne({ email: req.body.email });
-        if (user) {
-            const verified = await authenticate(user, pwd);
-            if (!verified)
-                throw new Error('Invalid username or password.');
-            else {
-                req.session.userId = user._id;
-                req.flash('success', 'Welcome back.');
-                res.redirect('/dashboard');
+app.post('/login',
+        body('email').isEmail(),
+        body('password').isLength({ min: 6 }).escape(),
+        async (req, res) => {
+            try {
+                checkInputValidation(req)
+                const pwd = req.body.password;
+                user = await EventManager.findOne({ email: req.body.email });
+                if (user) {
+                    const verified = await authenticate(user, pwd);
+                    if (!verified)
+                        throw new Error('Missing/Invalid username or password.');
+                    else {
+                        req.session.userId = user._id;
+                        req.flash('success', 'Welcome back.');
+                        res.redirect('/dashboard');
+                    }
+                }
+                else
+                    throw new Error('Missing/Invalid username or password.');
+            } catch (err) {
+                console.log(err);
+                req.flash('error', err.message);
+                res.redirect('/login');
             }
-        }
-        else
-            throw new Error('Invalid username or password.');
-    } catch (err) {
-        console.log(err);
-        req.flash('error', err.message);
-        res.redirect('/login');
-    }
-});
+        });
 
 app.get('/dashboard', checkUser, (req, res) => {
     res.render('dashboard');
@@ -176,10 +201,17 @@ app.get('/profile', checkUser, async (req, res) => {
     }
 });
 
-app.post('/profile', checkUser, upload.array('images'), async (req, res) => {
-    try {
-        switch (req.query.form) {
-            case '1':
+app.post('/profile/manager',
+        checkUser,
+        body('first_name').isString().trim().escape().notEmpty(),
+        body('last_name').isString().trim().escape(),
+        body('email').isEmail().notEmpty(),
+        body('aadhaar_num').isNumeric().notEmpty(),
+        body('pan_num').isAlphanumeric().notEmpty(),
+        body('phone').isMobilePhone().notEmpty(),
+        async (req, res) => {
+            try {
+                checkInputValidation(req);
                 await EventManager.findOneAndUpdate({ _id: res.locals.user._id }, {
                     fname: req.body.first_name,
                     lname: req.body.last_name,
@@ -188,10 +220,37 @@ app.post('/profile', checkUser, upload.array('images'), async (req, res) => {
                     pan: req.body.pan_num,
                     phone: req.body.phone
                 }, { new: true, runValidators: true });
-                break;
-            case '2':
+                
+                req.flash('success', 'Updated successfully.')
+            } catch (err) {
+                console.log(err);
+                req.flash('error', err.message);
+            }
+            res.redirect('/profile');
+        });
+
+app.post('/profile/hall',
+        checkUser,
+        upload.array('images'),
+        body('hallname').isString().trim().escape(),
+        body('longitude').isNumeric(),
+        body('latitude').isNumeric(),
+        body('address').isString().trim().escape().notEmpty(),
+        body('city').isString().trim().escape().notEmpty(),
+        body('pincode').isNumeric().notEmpty(),
+        body('contact').isMobilePhone().notEmpty(),
+        body('size').isNumeric().notEmpty(),
+        body('capacity').isNumeric().notEmpty(),
+        body('shifts').isNumeric().notEmpty(),
+        body('costpershift').isNumeric().notEmpty(),
+        body('desc').isString().trim().escape(),
+        async (req, res) => {
+            const newimages = req.files.map(file => ({ url: file.path, filename: file.filename }));
+            try {
+                checkInputValidation(req);
+
                 const ftype = res.locals.halltypes.filter(type => req.body[type]);
-                const newimages = req.files.map(file => ({ url: file.path, filename: file.filename }));
+                
                 const update = await EventHall.findOneAndUpdate({ managerid: res.locals.user._id }, {
                     managerid: res.locals.user._id,
                     name: req.body.hallname,
@@ -220,37 +279,85 @@ app.post('/profile', checkUser, upload.array('images'), async (req, res) => {
                         await cloudinary.uploader.destroy(imagename);
                 }
                 await update.save();
-                break;
-            case '3':
+                req.flash('success', 'Updated successfully.')
+            } catch (err) {
+                for (let image of newimages) {
+                    await cloudinary.uploader.destroy(image.filename);
+                }
+                console.log(err);
+                req.flash('error', err.message);
+            }
+            res.redirect('/profile');
+        });
+
+app.post('/profile/bankaccount', 
+        checkUser, 
+        body('acholdername').isString().trim().escape().notEmpty(),
+        body('acnum').isNumeric().notEmpty(),
+        body('ifsc').isAlphanumeric().notEmpty(),
+        async (req, res) => {
+            try {
+                checkInputValidation(req);
                 await BankAccount.findOneAndUpdate({ managerid: res.locals.user._id }, {
                     managerid: res.locals.user._id,
                     name: req.body.acholdername,
                     accno: req.body.acnum,
                     ifsc: req.body.ifsc
                 }, { upsert: true, new: true, runValidators: true });
-                break;
-        }
-        req.flash('success', 'Updated successfully.')
-    } catch (err) {
-        console.log(err);
-        req.flash('error', err);
-    }
-    res.redirect('/profile');
-});
+                req.flash('success', 'Updated successfully.');
+            } catch (err) {
+                console.log(err);
+                req.flash('error', err.message);
+            }
+            res.redirect('/profile');
+        });
 
 app.get('/bookings', checkUser, (req, res) => {
     res.render('bookings');
 });
 
-app.post('/logout', (req, res) => {
-    if (req.session.userId)
-        req.session.destroy();
+app.post('/logout', checkUser, (req, res) => {
+    req.session.destroy();
     res.redirect('/');
 });
 
-app.post('/deleteAccount', checkUser, async (req, res) => {
+app.get('/account', checkUser, (req, res) => {
+    res.render('account');
+});
+
+app.post('/account',
+        checkUser,
+        body('password').isLength({ min: 6 }).escape(),
+        body('newpassword').isLength({ min: 6 }).escape(),
+        body('passwordrepeat').isLength({ min: 6 }).escape(),
+        async (req, res) => {
+            try {
+                if (req.body.newpassword==req.body.passwordrepeat) {
+                    checkInputValidation(req);
+                    const user = res.locals.user;
+                    const pwd = req.body.password;
+                    const verified = await authenticate(user, pwd);
+                    if (verified) {
+                        const newpwdigest = await hashedpwd(req.body.newpassword);
+                        await EventManager.findOneAndUpdate({ _id: user._id }, { password: newpwdigest }, { new: true, runValidators: true });
+                        req.flash('success', 'Password updated.');
+                    }
+                    else
+                        throw new Error('Unable to authenticate.');
+                }
+                else
+                    throw new Error('New and repeat passwords do not match.');
+            } catch(err) {
+                console.log(err);
+                req.flash('error', err.message);
+            }
+            res.redirect('/account');
+        })
+
+app.post('/account/delete', checkUser, body('pwd').isLength({ min: 6 }).escape(), async (req, res) => {
     try {
-        const userId = req.session.userId;
+        checkInputValidation(req);
+        const userId = res.locals.user._id;
         const user = await EventManager.findOne({ _id: userId });
         const halls = await EventHall.find({ managerid: userId });
         const verified = await authenticate(user, req.body.pwd);
@@ -272,7 +379,7 @@ app.post('/deleteAccount', checkUser, async (req, res) => {
     } catch (err) {
         console.log(err);
         req.flash('error', err.message);
-        res.redirect('/profile');
+        res.redirect('/account');
     }
 })
 

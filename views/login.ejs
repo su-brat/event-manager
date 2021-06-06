@@ -33,13 +33,13 @@
                                     <h4 class="text-dark mb-4">Welcome Back!</h4>
                                 </div>
                                 <%- include('partials/flash') %>
-                                    <form class="user mb-2 needs-validation" method="POST" action="/login">
-                                        <div class="form-group"><input class="form-control form-control-user"
+                                    <form class="form mb-2 needs-validation" method="POST" action="/login" novalidate>
+                                        <div class="form-group"><input class="form-control"
                                                 type="email" id="email" aria-describedby="emailHelp"
-                                                placeholder="Enter Email Address" name="email" required></div>
-                                        <div class="form-group"><input class="form-control form-control-user"
-                                                type="password" id="password" placeholder="Password" name="password" required></div>
-                                        <button class="btn btn-primary btn-block text-white btn-user"
+                                                placeholder="Email Address" name="email" required><div class="invalid-feedback">Missing/Invalid input</div></div>
+                                        <div class="form-group"><input class="form-control"
+                                                type="password" id="password" placeholder="Password" name="password" minlength="6" required><div class="invalid-feedback">Missing/Invalid input</div></div>
+                                        <button class="btn btn-primary btn-block"
                                             type="submit">Login</button>
                                     </form>
                                     <div class="text-center"><a class="small" href="/forgot-password">Forgot
@@ -52,6 +52,7 @@
                 </div>
             </div>
         </div>
+        <script src="assets/js/form-validator.js"></script>
         <script src="assets/js/jquery.min.js"></script>
         <script src="assets/bootstrap/js/bootstrap.min.js"></script>
         <script src="assets/js/chart.min.js"></script>

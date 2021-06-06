@@ -11,8 +11,6 @@ const eventManagerSchema = mongoose.Schema({
     },
     lname: {
         type: String,
-        required: true,
-        default: "",
         maxLength: 20
     },
     email: {
