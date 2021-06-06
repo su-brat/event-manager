@@ -5,6 +5,8 @@ const session = require('express-session');
 const bcrypt = require('bcrypt');
 const flash = require('connect-flash');
 
+const mongoSanitize = require('express-mongo-sanitize');
+
 if (process.env.NODE_ENV!=='PRODUCTION')
     require('dotenv').config();
 
@@ -34,6 +36,14 @@ const hashedpwd = async (pwd) => await bcrypt.hash(pwd, 12);
 
 const authenticate = async (user, pwd) => await bcrypt.compare(pwd, user.password);
 
+const checkUser = (req, res, next) => {
+    if (res.locals.user)
+        next();
+    else
+        res.redirect('/');
+}
+
+
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, '/views'));
 
@@ -46,6 +56,18 @@ app.use(express.urlencoded({ extended: true }));
 //to parse and fetch json data
 app.use(express.json());
 
+//remove or sanitize $ or . to prevent noSQL injection
+app.use(mongoSanitize());
+
+//report on console if anything is sanitized
+app.use(
+  mongoSanitize({
+    onSanitize: ({ req, key }) => {
+      console.warn(`This request[${key}] is sanitized`, req);
+    },
+  }),
+);
+
 //to override POST request for DELETE, PUT, PATCH etc.
 app.use(methodOverride('_method'));
 
@@ -56,6 +78,7 @@ app.use(flash());
 app.use(async (req, res, next) => {
     req.requestTime = Date.now();
     console.log(`\nRequest timestamp: ${new Date(req.requestTime)}`);
+    console.log(`Requested page: ${req.originalUrl}`);
     try {
         res.locals.user = await EventManager.findOne({ _id: req.session.userId });
     } catch (err) {
@@ -66,13 +89,6 @@ app.use(async (req, res, next) => {
     res.locals.halltypes = ['B\'day', 'Marriage', 'Thread Ceremony'];
     next();
 })
-
-checkUser = (req, res, next) => {
-    if (res.locals.user)
-        next();
-    else
-        res.redirect('/');
-}
 
 app.get('/', async (req, res) => {
     if (res.locals.user)
