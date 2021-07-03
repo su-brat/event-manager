@@ -236,24 +236,27 @@
                                                             uploaded.</div>
                                                 </div>
                                                 <% if (hall && hall.images && hall.images.length>0) { %>
+                                                    <label><strong>Select images to delete</strong></label>
+                                                    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 row-cols-xl-4 mb-2">
                                                     <% for (let image of hall.images) { %>
-                                                        <div class="form-check">
-                                                            <div><img src="<%= image.thumbnail %>"></div>
-                                                            <input type="checkbox" class="form-check-input"
-                                                                name="<%= image.filename %>" id="<%= image.filename %>">
-                                                            <label for="<%= image.filename %>">Select to delete</label>
+                                                        <div class="col mb-2">
+                                                            <div class="custom-control custom-checkbox image-checkbox">
+                                                                <input type="checkbox" class="custom-control-input" name="<%= image.filename %>" id="<%= image.filename %>">
+                                                                <label class="custom-control-label" for="<%= image.filename %>">
+                                                                    <img src="<%= image.thumbnail %>" alt="#" class="img-fluid">
+                                                                </label>
+                                                            </div>
                                                         </div>
-                                                        <% } %>
-                                                            <div class="text-warning mb-2">Selected images will be
-                                                                    deleted.</div>
-                                                            <% } else { %>
-                                                                <div class="form-row"><label
-                                                                        class="text-secondary">No images uploaded
-                                                                            yet.</label></div>
-                                                                <% } %>
-                                                                    <div class="form-group"><button
-                                                                            class="btn btn-primary btn-sm"
-                                                                            type="submit">Save</button></div>
+                                                    <% } %>
+                                                    </div>
+                                                <% } else { %>
+                                                    <div class="form-row"><label
+                                                            class="text-secondary">No images uploaded
+                                                                yet.</label></div>
+                                                <% } %>
+                                                <div class="form-group"><button
+                                                        class="btn btn-primary btn-sm"
+                                                        type="submit">Save</button></div>
                                             </form>
                                         </div>
                                         <div class="card-footer">

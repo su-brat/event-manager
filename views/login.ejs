@@ -20,36 +20,28 @@
 
     <body class="bg-light">
         <div class="container">
-            <div class="card shadow-lg o-hidden border-0 my-5">
-                <div class="card-body p-0">
-                    <div class="row">
-                        <div class="col-lg-5 d-none d-lg-flex bg-gradient-primary">
-                            <div class="flex-grow-1 bg-login-image"
-                                style="background-image: url(&quot;assets/img/login.png&quot;);"></div>
-                        </div>
-                        <div class="col-lg-7">
-                            <div class="p-3 m-5">
-                                <div class="text-center">
-                                    <h4 class="text-dark mb-4">Welcome Back!</h4>
-                                </div>
-                                <%- include('partials/flash') %>
-                                    <form class="form mb-2 needs-validation" method="POST" action="/login" novalidate>
-                                        <div class="form-group"><input class="form-control"
-                                                type="email" id="email" aria-describedby="emailHelp"
-                                                placeholder="Email Address" name="email" required><div class="invalid-feedback">Missing/Invalid input</div></div>
-                                        <div class="form-group"><input class="form-control"
-                                                type="password" id="password" placeholder="Password" name="password" minlength="6" required><div class="invalid-feedback">Missing/Invalid input</div></div>
-                                        <button class="btn btn-primary btn-block"
-                                            type="submit">Login</button>
-                                    </form>
-                                    <div class="text-center"><a class="small" href="/forgot-password">Forgot
-                                            Password?</a></div>
-                                    <div class="text-center"><a class="small" href="/register">Create an Account!</a>
-                                    </div>
-                            </div>
-                        </div>
+            <div class="row justify-content-center">
+            <div class="card shadow-lg my-5 col-sm-10 col-md-7 col-lg-6 col-xl-5">
+                <div class="card-body m-3">
+                    <div class="text-center">
+                        <h4 class="text-dark mb-4">Welcome Back!</h4>
                     </div>
+                    <%- include('partials/flash') %>
+                        <form class="form mb-2 needs-validation" method="POST" action="/login" novalidate>
+                            <div class="form-group"><input class="form-control"
+                                    type="email" id="email" aria-describedby="emailHelp"
+                                    placeholder="Email Address" name="email" required><div class="invalid-feedback">Missing/Invalid input</div></div>
+                            <div class="form-group"><input class="form-control"
+                                    type="password" id="password" placeholder="Password" name="password" minlength="6" required><div class="invalid-feedback">Missing/Invalid input</div></div>
+                            <button class="btn btn-primary btn-block"
+                                type="submit">Login</button>
+                        </form>
+                        <div class="text-center"><a class="small" href="/forgot-password">Forgot
+                                Password?</a></div>
+                        <div class="text-center"><a class="small" href="/register">Create an Account!</a>
+                        </div>
                 </div>
+            </div>
             </div>
         </div>
         <script src="assets/js/form-validator.js"></script>
