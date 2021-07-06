@@ -7,12 +7,17 @@
    _Example:_
    Inside `.env` file...
 
-```
+````
+DB_PATH=mongodb://localhost:27017/<database_name>``` or other path to database
+````
+
 SESSION_SECRET=value1
 CLOUDINARY_CLOUD_NAME=value2
 CLOUDINARY_KEY=value3
 CLOUDINARY_SECRET=value4
 MAPBOX_KEY=value5
+
 ```
 
 _(Use the same keys with real values.)_ 4. Run `mongoDB` daemon to be able to connect to database. 5. Run `node app.js`. 6. Open browser and query `localhost:3000/<a route present inside the app.js file>`.
+```
