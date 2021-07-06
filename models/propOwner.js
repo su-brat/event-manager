@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 const validator = require('validator');
 const aadhaarvValidator = require('aadhaar-validator');
 
-const eventManagerSchema = mongoose.Schema({
+const propOwnerSchema = mongoose.Schema({
     fname: {
         type: String,
         required: true,
@@ -43,12 +43,12 @@ const eventManagerSchema = mongoose.Schema({
     }
 });
 
-eventManagerSchema.virtual('fullname').get(function () {
+propOwnerSchema.virtual('fullname').get(function () {
     return `${this.fname} ${this.lname}`
 }).set(function (fullname) {
     this.fname, this.lname = fullname.split(' ');
 });
 
-const EventManager = mongoose.model('EventManager', eventManagerSchema);
+const PropOwner = mongoose.model('PropOwner', propOwnerSchema);
 
-module.exports = EventManager;
+module.exports = PropOwner;

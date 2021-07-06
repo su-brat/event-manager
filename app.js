@@ -2,57 +2,48 @@ const express = require('express');
 const app = express();
 const path = require('path');
 const session = require('express-session');
-const bcrypt = require('bcrypt');
+const { hashedpwd, authenticate } = require('./services/pwdServices');
 const flash = require('connect-flash');
 const helmet = require('helmet');
 
-const { body, validationResult } = require('express-validator');
+const apiRoutes = require('./routes/api')
 
 const mongoSanitize = require('express-mongo-sanitize');
 
-if (process.env.NODE_ENV!=='PRODUCTION')
-    require('dotenv').config();
+const config = require('./config/envConf')
+config()
 
-const { storage, cloudinary } = require('./cloudinary-config');
+const { storage, cloudinary } = require('./config/cloudinaryConf');
 const multer = require('multer');
 const upload = multer({ storage: storage });
 
+const sessionConfig = require('./config/sessionConf');
+
+const db = require('./services/dbInitClose');
+
+db.connect(process.env.DB_PATH);
+
 const methodOverride = require('method-override');
 
-const db = require('./db-handler');
-
-db.connect('eventData');
-
-const EventManager = require('./models/eventManager');
-const EventHall = require('./models/eventHall');
+const PropOwner = require('./models/propOwner');
+const EventProp = require('./models/eventProp');
 const BankAccount = require('./models/bankAccount');
 
-const sessionConfig = require('./session-config');
+const { sendOTP, resendOTP, authOTP } = require('./services/otpService');
 
 const validateOTP = (req, res, next) => {
     // Code to validate OTP
-
+    
     next();
 }
 
-const hashedpwd = async (pwd) => await bcrypt.hash(pwd, 12);
+const checkUser = require('./middlewares/checkLocalUser')
 
-const authenticate = async (user, pwd) => await bcrypt.compare(pwd, user.password);
-
-const checkUser = (req, res, next) => {
-    if (res.locals.user)
-        next();
-    else
-        res.redirect('/');
-}
+const reqInfo = require('./middlewares/debugMsg')
 
 // Throws error if input validation fails
-const checkInputValidation = req => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-        throw new Error('Missing/Invalid input field(s).');
-    }
-}
+const { registerFormValidation, loginFormValidation, ownerProfileFormValidation, propertyFormValidation, bankAccountFormValidation, accountFormValidation } = require('./services/inputValidation');
+const inputValidationResult = require('./middlewares/valResult');
 
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, '/views'));
@@ -82,6 +73,9 @@ app.use(helmet({
     contentSecurityPolicy: false    //to enable undefined sources such as mapbox, cloudinary etc.
 }));
 
+//to retrieve data using api
+app.use('/api', apiRoutes);
+
 //to override POST request for DELETE, PUT, PATCH etc.
 app.use(methodOverride('_method'));
 
@@ -89,18 +83,17 @@ app.use(session(sessionConfig));
 
 app.use(flash());
 
+app.use(reqInfo)
+
 app.use(async (req, res, next) => {
-    req.requestTime = Date.now();
-    console.log(`\nRequest timestamp: ${new Date(req.requestTime)}`);
-    console.log(`Requested page: ${req.originalUrl}`);
     try {
-        res.locals.user = await EventManager.findOne({ _id: req.session.userId });
+        res.locals.user = await PropOwner.findOne({ _id: req.session.userId });
     } catch (err) {
         console.log(err);
     }
     res.locals.success = req.flash('success');
     res.locals.error = req.flash('error');
-    res.locals.halltypes = ['B\'day', 'Marriage', 'Thread Ceremony'];
+    res.locals.proptypes = ['B\'day', 'Engagement', 'Wedding', 'Thread Ceremony', 'Puja Function', 'Get-together', 'Party'];
     next();
 })
 
@@ -118,22 +111,15 @@ app.get('/register', (req, res) => {
         res.render('register');
 });
 
-app.post('/register', 
-        body('first_name').isString().trim().escape(), 
-        body('last_name').isString().trim().escape(), 
-        body('password').isLength({ min: 6 }).escape(),
-        body('password_repeat').isLength({ min: 6 }).escape(),
-        body('email').isEmail(),
-        body('phone').isMobilePhone(),
-        body('aadhaar').isNumeric(),
-        body('pan').isAlphanumeric(),
-        validateOTP, 
+app.put('/register', 
+        registerFormValidation,
+        inputValidationResult,
+        validateOTP,
         async (req, res) => {
             try {
                 if (req.body.password == req.body.password_repeat) {
-                    checkInputValidation(req);
                     const pwdigest = await hashedpwd(req.body.password);
-                    user = new EventManager({
+                    user = new PropOwner({
                         fname: req.body.first_name,
                         lname: req.body.last_name,
                         email: req.body.email,
@@ -163,13 +149,12 @@ app.get('/login', (req, res) => {
 });
 
 app.post('/login',
-        body('email').isEmail(),
-        body('password').isLength({ min: 6 }).escape(),
+        loginFormValidation,
+        inputValidationResult,
         async (req, res) => {
             try {
-                checkInputValidation(req)
                 const pwd = req.body.password;
-                user = await EventManager.findOne({ email: req.body.email });
+                user = await PropOwner.findOne({ email: req.body.email });
                 if (user) {
                     const verified = await authenticate(user, pwd);
                     if (!verified)
@@ -195,9 +180,9 @@ app.get('/dashboard', checkUser, (req, res) => {
 
 app.get('/profile', checkUser, async (req, res) => {
     try {
-        const hall = await EventHall.findOne({ managerid: res.locals.user._id })
-        const account = await BankAccount.findOne({ managerid: res.locals.user._id })
-        res.render('profile', { hall, account });
+        const prop = await EventProp.findOne({ ownerid: res.locals.user._id })
+        const account = await BankAccount.findOne({ ownerid: res.locals.user._id })
+        res.render('profile', { prop, account });
     }
     catch (err) {
         console.log(err);
@@ -206,18 +191,13 @@ app.get('/profile', checkUser, async (req, res) => {
     }
 });
 
-app.post('/profile/manager',
+app.post('/profile/owner',
         checkUser,
-        body('first_name').isString().trim().escape().notEmpty(),
-        body('last_name').isString().trim().escape(),
-        body('email').isEmail().notEmpty(),
-        body('aadhaar_num').isNumeric().notEmpty(),
-        body('pan_num').isAlphanumeric().notEmpty(),
-        body('phone').isMobilePhone().notEmpty(),
+        ownerProfileFormValidation,
+        inputValidationResult,
         async (req, res) => {
             try {
-                checkInputValidation(req);
-                await EventManager.findOneAndUpdate({ _id: res.locals.user._id }, {
+                await PropOwner.findOneAndUpdate({ _id: res.locals.user._id }, {
                     fname: req.body.first_name,
                     lname: req.body.last_name,
                     email: req.body.email,
@@ -234,31 +214,19 @@ app.post('/profile/manager',
             res.redirect('/profile');
         });
 
-app.post('/profile/hall',
+app.post('/profile/prop',
         checkUser,
         upload.array('images'),
-        body('hallname').isString().trim().escape(),
-        body('longitude').isNumeric(),
-        body('latitude').isNumeric(),
-        body('address').isString().trim().escape().notEmpty(),
-        body('city').isString().trim().escape().notEmpty(),
-        body('pincode').isNumeric().notEmpty(),
-        body('contact').isMobilePhone().notEmpty(),
-        body('size').isNumeric().notEmpty(),
-        body('capacity').isNumeric().notEmpty(),
-        body('shifts').isNumeric().notEmpty(),
-        body('costpershift').isNumeric().notEmpty(),
-        body('desc').isString().trim().escape(),
+        propertyFormValidation,
+        inputValidationResult,
         async (req, res) => {
             const newimages = req.files.map(file => ({ url: file.path, filename: file.filename }));
             try {
-                checkInputValidation(req);
-
-                const ftype = res.locals.halltypes.filter(type => req.body[type]);
+                const ftype = res.locals.proptypes.filter(type => req.body[type]);
                 
-                const update = await EventHall.findOneAndUpdate({ managerid: res.locals.user._id }, {
-                    managerid: res.locals.user._id,
-                    name: req.body.hallname,
+                const update = await EventProp.findOneAndUpdate({ ownerid: res.locals.user._id }, {
+                    ownerid: res.locals.user._id,
+                    name: req.body.propname,
                     location: { longitude: req.body.longitude, latitude: req.body.latitude, address: req.body.address, city: req.body.city, pincode: req.body.pincode },
                     contact: req.body.contact,
                     size: req.body.size,
@@ -297,14 +265,12 @@ app.post('/profile/hall',
 
 app.post('/profile/bankaccount', 
         checkUser, 
-        body('acholdername').isString().trim().escape().notEmpty(),
-        body('acnum').isNumeric().notEmpty(),
-        body('ifsc').isAlphanumeric().notEmpty(),
+        bankAccountFormValidation,
+        inputValidationResult,
         async (req, res) => {
             try {
-                checkInputValidation(req);
-                await BankAccount.findOneAndUpdate({ managerid: res.locals.user._id }, {
-                    managerid: res.locals.user._id,
+                await BankAccount.findOneAndUpdate({ ownerid: res.locals.user._id }, {
+                    ownerid: res.locals.user._id,
                     name: req.body.acholdername,
                     accno: req.body.acnum,
                     ifsc: req.body.ifsc
@@ -332,19 +298,17 @@ app.get('/account', checkUser, (req, res) => {
 
 app.post('/account',
         checkUser,
-        body('password').isLength({ min: 6 }).escape(),
-        body('newpassword').isLength({ min: 6 }).escape(),
-        body('passwordrepeat').isLength({ min: 6 }).escape(),
+        accountFormValidation,
+        inputValidationResult,
         async (req, res) => {
             try {
                 if (req.body.newpassword==req.body.passwordrepeat) {
-                    checkInputValidation(req);
                     const user = res.locals.user;
                     const pwd = req.body.password;
                     const verified = await authenticate(user, pwd);
                     if (verified) {
                         const newpwdigest = await hashedpwd(req.body.newpassword);
-                        await EventManager.findOneAndUpdate({ _id: user._id }, { password: newpwdigest }, { new: true, runValidators: true });
+                        await PropOwner.findOneAndUpdate({ _id: user._id }, { password: newpwdigest }, { new: true, runValidators: true });
                         req.flash('success', 'Password updated.');
                     }
                     else
@@ -359,22 +323,21 @@ app.post('/account',
             res.redirect('/account');
         })
 
-app.post('/account/delete', checkUser, body('pwd').isLength({ min: 6 }).escape(), async (req, res) => {
+app.delete('/account/delete', checkUser, async (req, res) => {
     try {
-        checkInputValidation(req);
         const userId = res.locals.user._id;
-        const user = await EventManager.findOne({ _id: userId });
-        const halls = await EventHall.find({ managerid: userId });
+        const user = await PropOwner.findOne({ _id: userId });
+        const props = await EventProp.find({ ownerid: userId });
         const verified = await authenticate(user, req.body.pwd);
         if (verified) {
             console.log('Deleting account...');
-            for (let hall of halls) {
-                for (let image of hall.images)
+            for (let prop of props) {
+                for (let image of prop.images)
                     await cloudinary.uploader.destroy(image.filename);
             }
-            await EventManager.deleteOne({ _id: userId });
-            await EventHall.deleteMany({ managerid: userId });
-            await BankAccount.deleteMany({ managerid: userId });
+            await PropOwner.deleteOne({ _id: userId });
+            await EventProp.deleteMany({ ownerid: userId });
+            await BankAccount.deleteMany({ ownerid: userId });
             req.session.destroy();
             console.log('Account deleted');
             res.redirect('/');
@@ -393,10 +356,3 @@ app.listen(3000, () => {
     console.log('Listening to port 3000...');
 });
 
-/*
-
-app.get('/r/:subroute', (req, res) => {
-    res.send(`Welcome to ${req.params.subroute}!`);
-});
-
-*/

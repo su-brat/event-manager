@@ -30,7 +30,7 @@ LocationSchema.virtual('lngLat').get(function() {
     return [this.longitude, this.latitude];
 })
 
-const eventHallSchema = mongoose.Schema({
+const eventPropSchema = mongoose.Schema({
     name: String,
     size: {
         type: Number,
@@ -56,13 +56,13 @@ const eventHallSchema = mongoose.Schema({
         required: true
     },
     location: LocationSchema,
-    managerid: { 
+    ownerid: { 
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'EventManager',
+        ref: 'PropOwner',
         required: true
     }
 });
 
-const EventHall = mongoose.model('EventHall', eventHallSchema);
+const EventProp = mongoose.model('EventProp', eventPropSchema);
 
-module.exports = EventHall;
+module.exports = EventProp;

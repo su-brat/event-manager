@@ -35,11 +35,11 @@
                                 <%- include('partials/flash') %>
                                     <div class="card shadow mb-3">
                                         <div class="card-header py-3">
-                                            <p class="text-primary m-0 font-weight-bold">About Hall Owner /
+                                            <p class="text-primary m-0 font-weight-bold">About Property Owner /
                                                 Manager</p>
                                         </div>
                                         <div class="card-body">
-                                            <form method="POST" action="/profile/manager" class="needs-validation" novalidate>
+                                            <form method="POST" action="/profile/owner" class="needs-validation" novalidate>
                                                 <div class="form-row">
                                                     <div class="col">
                                                         <div class="form-group"><label for="first_name"><strong>First
@@ -102,28 +102,28 @@
 
                                     <div class="card shadow mb-3">
                                         <div class="card-header py-3">
-                                            <p class="text-primary m-0 font-weight-bold">About Hall</p>
+                                            <p class="text-primary m-0 font-weight-bold">About Property</p>
                                         </div>
                                         <div class="card-body">
-                                            <form method="POST" action="/profile/hall" enctype="multipart/form-data" class="needs-validation" novalidate>
+                                            <form method="POST" action="/profile/prop" enctype="multipart/form-data" class="needs-validation" novalidate>
                                                 <div class="form-group">
-                                                    <label for="hallname"><strong>Hall Name</strong></label><input
-                                                        class="form-control" type="text" id="hallname" name="hallname"
-                                                        <% if(hall) { %>value="<%= hall.name %>"<% } %>>
+                                                    <label for="propname"><strong>Property Name</strong></label><input
+                                                        class="form-control" type="text" id="propname" name="propname"
+                                                        <% if(prop) { %>value="<%= prop.name %>"<% } %>>
                                                 </div>
                                                 <div class="form-group">
                                                     <input type="text" style="display: none;" name="longitude"
-                                                        id="longitude" <% if(hall) { %>value="<%=
-                                                        hall.location.longitude %>"<% } %>>
+                                                        id="longitude" <% if(prop) { %>value="<%=
+                                                        prop.location.longitude %>"<% } %>>
                                                             <input type="text" style="display: none;" name="latitude"
-                                                                id="latitude" <% if(hall) { %>value="<%=
-                                                                hall.location.latitude %>"<% } %>>
+                                                                id="latitude" <% if(prop) { %>value="<%=
+                                                                prop.location.latitude %>"<% } %>>
                                                                     <div class="text-warning"><strong>Double
                                                                                 click</strong> to place the
                                                                             pointer. Make sure you
                                                                         place the pointer at correct location, since it
                                                                         helps your potential customers to find and trace
-                                                                        the hall.
+                                                                        the property.
                                                                     </div>
                                                 </div>
                                                 <div class="form-row">
@@ -141,15 +141,15 @@
                                                                 for="address"><strong>Address</strong>*</label><input
                                                                 class="form-control" type="text" id="address"
                                                                 placeholder="38, Gulzhar Nagar, Netaji Chowk"
-                                                                name="address" <% if(hall) { %>value="<%=
-                                                                hall.location.address %>"<% } %> required><div class="invalid-feedback">Missing/Invalid input</div></div>
+                                                                name="address" <% if(prop) { %>value="<%=
+                                                                prop.location.address %>"<% } %> required><div class="invalid-feedback">Missing/Invalid input</div></div>
                                                         <div class="form-row">
                                                             <div class="col">
                                                                 <div class="form-group"><label for="city"><strong>City /
                                                                             Town</strong>*</label><input
                                                                         class="form-control" type="text" id="city"
-                                                                        placeholder="New Delhi" name="city" <% if(hall)
-                                                                        { %>value="<%= hall.location.city %>"<% } %>
+                                                                        placeholder="New Delhi" name="city" <% if(prop)
+                                                                        { %>value="<%= prop.location.city %>"<% } %>
                                                                             required><div class="invalid-feedback">Missing/Invalid input</div></div>
                                                             </div>
                                                             <div class="col">
@@ -157,15 +157,15 @@
                                                                         for="pincode"><strong>Pincode</strong>*</label><input
                                                                         class="form-control" type="text" id="pincode"
                                                                         placeholder="123456" name="pincode"
-                                                                        maxlength="6" minlength="6" <% if(hall) {
-                                                                        %>value="<%= hall.location.pincode %>"<% } %>
+                                                                        maxlength="6" minlength="6" <% if(prop) {
+                                                                        %>value="<%= prop.location.pincode %>"<% } %>
                                                                             required><div class="invalid-feedback">Missing/Invalid input</div></div>
                                                             </div>
                                                         </div>
                                                         <div class="form-group"><label for="contact"><strong>Contact
                                                                     Number</strong></label>*<input class="form-control"
                                                                 type="tel" id="contact" placeholder="9999900000"
-                                                                name="contact" <% if(hall) { %>value="<%= hall.contact
+                                                                name="contact" <% if(prop) { %>value="<%= prop.contact
                                                                 %>"<% } %> required><div class="invalid-feedback">Missing/Invalid input</div></div>
                                                     </div>
                                                 </div>
@@ -175,16 +175,16 @@
                                                             <label for="size"><strong>Area</strong> (in
                                                                 sq.ft)*</label>
                                                             <input type="text" class="form-control" id="size"
-                                                                placeholder="4500" name="size" <% if(hall) { 
-                                                                %>value="<%= hall.size %>"<% } %> required><div class="invalid-feedback">Missing/Invalid input</div>
+                                                                placeholder="4500" name="size" <% if(prop) { 
+                                                                %>value="<%= prop.size %>"<% } %> required><div class="invalid-feedback">Missing/Invalid input</div>
                                                         </div>
                                                     </div>
                                                     <div class="col-sm-6">
                                                         <div class="form-group">
                                                             <label for="capacity"><strong>Capacity</strong>*</label>
                                                             <input type="text" class="form-control" id="capacity"
-                                                                placeholder="1000" name="capacity" <% if(hall) {
-                                                                %>value="<%= hall.capacity %>"<% } %> required><div class="invalid-feedback">Missing/Invalid input</div>
+                                                                placeholder="1000" name="capacity" <% if(prop) {
+                                                                %>value="<%= prop.capacity %>"<% } %> required><div class="invalid-feedback">Missing/Invalid input</div>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -193,8 +193,8 @@
                                                         <div class="form-group">
                                                             <label for="shifts"><strong>Shifts per day</strong>*</label>
                                                             <input type="number" id="shifts" name="shifts"
-                                                                placeholder="3" class="form-control" <% if(hall) {
-                                                                %>value="<%= hall.shift %>"<% } %> required><div class="invalid-feedback">Missing/Invalid input</div>
+                                                                placeholder="3" class="form-control" <% if(prop) {
+                                                                %>value="<%= prop.shift %>"<% } %> required><div class="invalid-feedback">Missing/Invalid input</div>
                                                         </div>
                                                     </div>
                                                     <div class="col-sm-6">
@@ -202,29 +202,31 @@
                                                             <label for="costpershift"><strong>Cost per shift</strong>
                                                                 (in ₹)*</label>
                                                             <input type="text" id="costpershift" name="costpershift"
-                                                                class="form-control" placeholder="25000" <% if(hall) {
-                                                                %>value="<%= hall.pricepershift %>"<% } %> required><div class="invalid-feedback">Missing/Invalid input</div>
+                                                                class="form-control" placeholder="25000" <% if(prop) {
+                                                                %>value="<%= prop.pricepershift %>"<% } %> required><div class="invalid-feedback">Missing/Invalid input</div>
                                                         </div>
                                                     </div>
                                                 </div>
                                                 <div class="form-group">
-                                                    <label><strong>Functions type</strong></label>
-                                                    <% for (let halltype of halltypes) { %>
-                                                        <div class="form-check">
+                                                    <label><strong>Function types</strong></label>
+                                                    <div class="row row-cols-1 row-cols-sm-2 mx-auto">
+                                                    <% for (let proptype of proptypes) { %>
+                                                        <div class="form-check col">
                                                             <input type="checkbox" class="form-check-input"
-                                                                name="<%= halltype %>" id="<%= halltype %>" <% if (hall
-                                                                && hall.functiontype.includes(halltype)) { %> checked <%
+                                                                name="<%= proptype %>" id="<%= proptype %>" <% if (prop
+                                                                && prop.functiontype.includes(proptype)) { %> checked <%
                                                                 } %>>
-                                                                <label for="<%= halltype %>" class="form-check-label">
-                                                                    <%= halltype %>
+                                                                <label for="<%= proptype %>" class="form-check-label">
+                                                                    <%= proptype %>
                                                                 </label>
                                                         </div>
-                                                        <% } %>
+                                                    <% } %>
+                                                    </div>
                                                 </div>
                                                 <div class="form-group">
                                                     <label for="desc"><strong>Description</strong></label>
                                                     <textarea class="form-control text-black" id="desc" name="desc"
-                                                        rows="4"><% if(hall) { %><%= hall.description %><% } %></textarea><div class="invalid-feedback">Missing/Invalid input</div>
+                                                        rows="4"><% if(prop) { %><%= prop.description %><% } %></textarea><div class="invalid-feedback">Missing/Invalid input</div>
                                                 </div>
                                                 <div class="form-group">
                                                     <label for="input-files"><strong>Add Images</strong></label>
@@ -235,10 +237,10 @@
                                                     <div class="text-warning">At <strong>max 5</strong> images can be
                                                             uploaded.</div>
                                                 </div>
-                                                <% if (hall && hall.images && hall.images.length>0) { %>
+                                                <% if (prop && prop.images && prop.images.length>0) { %>
                                                     <label><strong>Select images to delete</strong></label>
                                                     <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 row-cols-xl-4 mb-2">
-                                                    <% for (let image of hall.images) { %>
+                                                    <% for (let image of prop.images) { %>
                                                         <div class="col mb-2">
                                                             <div class="custom-control custom-checkbox image-checkbox">
                                                                 <input type="checkbox" class="custom-control-input" name="<%= image.filename %>" id="<%= image.filename %>">

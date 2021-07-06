@@ -1,9 +1,9 @@
 const mongoose = require('mongoose');
 
 const bankAccountSchema = mongoose.Schema({
-    managerid: {
+    ownerid: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'EventManager',
+        ref: 'PropOwner',
         required: true
     },
     name: {

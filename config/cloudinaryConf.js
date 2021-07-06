@@ -10,7 +10,7 @@ cloudinary.config({
 const storage = new CloudinaryStorage({
     cloudinary: cloudinary,
     params: {
-        folder: 'EventHalls',
+        folder: 'EventProps',
         allowedFormats: ['jpeg', 'jpg', 'png']
     }
 });
