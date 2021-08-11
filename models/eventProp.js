@@ -20,6 +20,10 @@ const LocationSchema = mongoose.Schema({
         type: String,
         required: true
     },
+    state: {
+        type: String,
+        required: true
+    },
     pincode: {
         type: Number,
         required: true

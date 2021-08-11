@@ -144,7 +144,7 @@
                                                                 name="address" <% if(prop) { %>value="<%=
                                                                 prop.location.address %>"<% } %> required><div class="invalid-feedback">Missing/Invalid input</div></div>
                                                         <div class="form-row">
-                                                            <div class="col">
+                                                            <div class="col-sm-6">
                                                                 <div class="form-group"><label for="city"><strong>City /
                                                                             Town</strong>*</label><input
                                                                         class="form-control" type="text" id="city"
@@ -152,7 +152,17 @@
                                                                         { %>value="<%= prop.location.city %>"<% } %>
                                                                             required><div class="invalid-feedback">Missing/Invalid input</div></div>
                                                             </div>
-                                                            <div class="col">
+
+                                                            <div class="col-sm-6">
+                                                                <div class="form-group"><label for="state"><strong>State/UT</strong>*</label><input class="form-control"
+                                                                        type="text" id="state" placeholder="Delhi" name="state" <% if(prop) {
+                                                                        %>value="<%= prop.location.state %>"<% } %>
+                                                                            required><div class="invalid-feedback">Missing/Invalid input</div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="form-row">
+                                                            <div class="col-sm-6">
                                                                 <div class="form-group"><label
                                                                         for="pincode"><strong>Pincode</strong>*</label><input
                                                                         class="form-control" type="text" id="pincode"
@@ -161,12 +171,14 @@
                                                                         %>value="<%= prop.location.pincode %>"<% } %>
                                                                             required><div class="invalid-feedback">Missing/Invalid input</div></div>
                                                             </div>
+                                                            <div class="col-sm-6">
+                                                                <div class="form-group"><label for="contact"><strong>Contact
+                                                                            Number</strong></label>*<input class="form-control"
+                                                                        type="tel" id="contact" placeholder="9999900000"
+                                                                        name="contact" <% if(prop) { %>value="<%= prop.contact
+                                                                        %>"<% } %> required><div class="invalid-feedback">Missing/Invalid input</div></div>
+                                                            </div>
                                                         </div>
-                                                        <div class="form-group"><label for="contact"><strong>Contact
-                                                                    Number</strong></label>*<input class="form-control"
-                                                                type="tel" id="contact" placeholder="9999900000"
-                                                                name="contact" <% if(prop) { %>value="<%= prop.contact
-                                                                %>"<% } %> required><div class="invalid-feedback">Missing/Invalid input</div></div>
                                                     </div>
                                                 </div>
                                                 <div class="form-row">

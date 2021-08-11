@@ -15,9 +15,8 @@ function deg2rad(deg) {
   return deg * (Math.PI/180)
 }
 
-function inRange(lat1, lon1, lat2, lon2) {
-    const rangeRadius = 20;
-    return getDistanceFromLatLonInKm(lat1, lon1, lat2, lon2)<rangeRadius;
+function inRange(lat1, lon1, lat2, lon2, radius) {
+    return getDistanceFromLatLonInKm(lat1, lon1, lat2, lon2)<radius;
 }
 
 function sortByRange(centerLat, centerLon, objArray) {

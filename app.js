@@ -120,12 +120,12 @@ app.put('/register',
                 if (req.body.password == req.body.password_repeat) {
                     const pwdigest = await hashedpwd(req.body.password);
                     user = new PropOwner({
-                        fname: req.body.first_name,
-                        lname: req.body.last_name,
-                        email: req.body.email,
+                        fname: req.body.first_name.toUpperCase(),
+                        lname: req.body.last_name.toLowerCase(),
+                        email: req.body.email.toLowerCase(),
                         phone: req.body.phone,
                         aadhaar: req.body.aadhaar,
-                        pan: req.body.pan,
+                        pan: req.body.pan.toUpperCase(),
                         password: pwdigest
                     })
                     await user.save();
@@ -154,7 +154,7 @@ app.post('/login',
         async (req, res) => {
             try {
                 const pwd = req.body.password;
-                user = await PropOwner.findOne({ email: req.body.email });
+                user = await PropOwner.findOne({ email: req.body.email.toLowerCase() });
                 if (user) {
                     const verified = await authenticate(user, pwd);
                     if (!verified)
@@ -198,11 +198,11 @@ app.post('/profile/owner',
         async (req, res) => {
             try {
                 await PropOwner.findOneAndUpdate({ _id: res.locals.user._id }, {
-                    fname: req.body.first_name,
-                    lname: req.body.last_name,
-                    email: req.body.email,
+                    fname: req.body.first_name.toUpperCase(),
+                    lname: req.body.last_name.toUpperCase(),
+                    email: req.body.email.toLowerCase(),
                     aadhaar: req.body.aadhaar_num,
-                    pan: req.body.pan_num,
+                    pan: req.body.pan_num.toUpperCase(),
                     phone: req.body.phone
                 }, { new: true, runValidators: true });
                 
@@ -226,8 +226,8 @@ app.post('/profile/prop',
                 
                 const update = await EventProp.findOneAndUpdate({ ownerid: res.locals.user._id }, {
                     ownerid: res.locals.user._id,
-                    name: req.body.propname,
-                    location: { longitude: req.body.longitude, latitude: req.body.latitude, address: req.body.address, city: req.body.city, pincode: req.body.pincode },
+                    name: req.body.propname.toUpperCase(),
+                    location: { longitude: req.body.longitude, latitude: req.body.latitude, address: req.body.address.toUpperCase(), city: req.body.city.toUpperCase(), state:req.body.state.toUpperCase(), pincode: req.body.pincode },
                     contact: req.body.contact,
                     size: req.body.size,
                     capacity: req.body.capacity,
@@ -271,9 +271,9 @@ app.post('/profile/bankaccount',
             try {
                 await BankAccount.findOneAndUpdate({ ownerid: res.locals.user._id }, {
                     ownerid: res.locals.user._id,
-                    name: req.body.acholdername,
+                    name: req.body.acholdername.toUpperCase(),
                     accno: req.body.acnum,
-                    ifsc: req.body.ifsc
+                    ifsc: req.body.ifsc.toUpperCase()
                 }, { upsert: true, new: true, runValidators: true });
                 req.flash('success', 'Updated successfully.');
             } catch (err) {
@@ -352,7 +352,7 @@ app.delete('/account/delete', checkUser, async (req, res) => {
 })
 
 //to connect and listen to port 3000
-app.listen(3000, () => {
-    console.log('Listening to port 3000...');
+app.listen(3001, () => {
+    console.log('Listening to port 3001...');
 });
 
