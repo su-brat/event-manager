@@ -72,7 +72,7 @@ router.get('/current-user', async (req, res) => {
 router.get('/event-bookings/:userId', async (req, res) => {
     const {userId} = req.params;
     try {
-        if(userId && !propId && !fromDate && !toDate) {
+        if(userId) {
             const bookings = await EventDetails.find({userId});
             console.log(bookings);
             return res.json({ bookings: bookings.sort((a, b) => a.bookingDate<b.bookingDate?1:(
