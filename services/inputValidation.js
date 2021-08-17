@@ -33,8 +33,7 @@ const propertyFormValidation = [
     body('contact').isMobilePhone().notEmpty(),
     body('size').isNumeric().notEmpty(),
     body('capacity').isNumeric().notEmpty(),
-    body('shifts').isNumeric().notEmpty(),
-    body('costpershift').isNumeric().notEmpty(),
+    body('costperhour').isNumeric().notEmpty(),
     body('desc').isString().trim().escape()
 ]
 

@@ -6,7 +6,8 @@ const { hashedpwd, authenticate } = require('./services/pwdServices');
 const flash = require('connect-flash');
 const helmet = require('helmet');
 
-const apiRoutes = require('./routes/api')
+const customerRoutes = require('./routes/customer');
+const apiRoutes = require('./routes/api');
 
 const mongoSanitize = require('express-mongo-sanitize');
 
@@ -28,6 +29,7 @@ const methodOverride = require('method-override');
 const PropOwner = require('./models/propOwner');
 const EventProp = require('./models/eventProp');
 const BankAccount = require('./models/bankAccount');
+const Customer = require('./models/customer');
 
 const { sendOTP, resendOTP, authOTP } = require('./services/otpService');
 
@@ -37,7 +39,7 @@ const validateOTP = (req, res, next) => {
     next();
 }
 
-const checkUser = require('./middlewares/checkLocalUser')
+const {checkOwner} = require('./middlewares/checkLocalUser')
 
 const reqInfo = require('./middlewares/debugMsg')
 
@@ -73,9 +75,6 @@ app.use(helmet({
     contentSecurityPolicy: false    //to enable undefined sources such as mapbox, cloudinary etc.
 }));
 
-//to retrieve data using api
-app.use('/api', apiRoutes);
-
 //to override POST request for DELETE, PUT, PATCH etc.
 app.use(methodOverride('_method'));
 
@@ -86,8 +85,15 @@ app.use(flash());
 app.use(reqInfo)
 
 app.use(async (req, res, next) => {
+    console.log('session: ', req.session);
     try {
-        res.locals.user = await PropOwner.findOne({ _id: req.session.userId });
+        if (req.session && req.session.role === 'owner') {
+            res.locals.user = await PropOwner.findOne({ _id: req.session.userId });
+            res.locals.user.role = 'owner';
+        } else if (req.session && req.session.role === 'customer') {
+            res.locals.user = await Customer.findOne({ _id: req.session.userId });
+            res.locals.user.role = 'customer';
+        }
     } catch (err) {
         console.log(err);
     }
@@ -96,6 +102,10 @@ app.use(async (req, res, next) => {
     res.locals.proptypes = ['B\'day', 'Engagement', 'Wedding', 'Thread Ceremony', 'Puja Function', 'Get-together', 'Party'];
     next();
 })
+
+app.use('/api', apiRoutes);
+
+app.use('/customer', customerRoutes);
 
 app.get('/', async (req, res) => {
     if (res.locals.user)
@@ -121,7 +131,7 @@ app.put('/register',
                     const pwdigest = await hashedpwd(req.body.password);
                     user = new PropOwner({
                         fname: req.body.first_name.toUpperCase(),
-                        lname: req.body.last_name.toLowerCase(),
+                        lname: req.body.last_name.toUpperCase(),
                         email: req.body.email.toLowerCase(),
                         phone: req.body.phone,
                         aadhaar: req.body.aadhaar,
@@ -130,6 +140,7 @@ app.put('/register',
                     })
                     await user.save();
                     req.session.userId = user._id;
+                    req.session.role = 'owner';
                     req.flash('success', 'Successfully registered.');
                     res.redirect('/dashboard');
                 } else
@@ -161,6 +172,7 @@ app.post('/login',
                         throw new Error('Missing/Invalid username or password.');
                     else {
                         req.session.userId = user._id;
+                        req.session.role = 'owner';
                         req.flash('success', 'Welcome back.');
                         res.redirect('/dashboard');
                     }
@@ -174,11 +186,13 @@ app.post('/login',
             }
         });
 
-app.get('/dashboard', checkUser, (req, res) => {
+app.use(checkOwner);
+
+app.get('/dashboard', (req, res) => {
     res.render('dashboard');
 });
 
-app.get('/profile', checkUser, async (req, res) => {
+app.get('/profile', async (req, res) => {
     try {
         const prop = await EventProp.findOne({ ownerid: res.locals.user._id })
         const account = await BankAccount.findOne({ ownerid: res.locals.user._id })
@@ -192,7 +206,6 @@ app.get('/profile', checkUser, async (req, res) => {
 });
 
 app.post('/profile/owner',
-        checkUser,
         ownerProfileFormValidation,
         inputValidationResult,
         async (req, res) => {
@@ -215,11 +228,11 @@ app.post('/profile/owner',
         });
 
 app.post('/profile/prop',
-        checkUser,
         upload.array('images'),
         propertyFormValidation,
         inputValidationResult,
         async (req, res) => {
+            console.log(req.body.allowBooking);
             const newimages = req.files.map(file => ({ url: file.path, filename: file.filename }));
             try {
                 const ftype = res.locals.proptypes.filter(type => req.body[type]);
@@ -230,9 +243,9 @@ app.post('/profile/prop',
                     location: { longitude: req.body.longitude, latitude: req.body.latitude, address: req.body.address.toUpperCase(), city: req.body.city.toUpperCase(), state:req.body.state.toUpperCase(), pincode: req.body.pincode },
                     contact: req.body.contact,
                     size: req.body.size,
+                    allowBooking: req.body.allowBooking,
                     capacity: req.body.capacity,
-                    shift: req.body.shifts,
-                    pricepershift: req.body.costpershift,
+                    priceperhour: req.body.costperhour,
                     functiontype: ftype,
                     description: req.body.desc
                 }, { upsert: true, new: true, runValidators: true });
@@ -264,7 +277,6 @@ app.post('/profile/prop',
         });
 
 app.post('/profile/bankaccount', 
-        checkUser, 
         bankAccountFormValidation,
         inputValidationResult,
         async (req, res) => {
@@ -283,21 +295,20 @@ app.post('/profile/bankaccount',
             res.redirect('/profile');
         });
 
-app.get('/bookings', checkUser, (req, res) => {
+app.get('/bookings', (req, res) => {
     res.render('bookings');
 });
 
-app.post('/logout', checkUser, (req, res) => {
+app.post('/logout', (req, res) => {
     req.session.destroy();
     res.redirect('/');
 });
 
-app.get('/account', checkUser, (req, res) => {
+app.get('/account', (req, res) => {
     res.render('account');
 });
 
 app.post('/account',
-        checkUser,
         accountFormValidation,
         inputValidationResult,
         async (req, res) => {
@@ -323,7 +334,7 @@ app.post('/account',
             res.redirect('/account');
         })
 
-app.delete('/account/delete', checkUser, async (req, res) => {
+app.delete('/account/delete', async (req, res) => {
     try {
         const userId = res.locals.user._id;
         const user = await PropOwner.findOne({ _id: userId });

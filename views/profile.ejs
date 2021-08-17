@@ -203,19 +203,20 @@
                                                 <div class="form-row">
                                                     <div class="col-sm-6">
                                                         <div class="form-group">
-                                                            <label for="shifts"><strong>Shifts per day</strong>*</label>
-                                                            <input type="number" id="shifts" name="shifts"
-                                                                placeholder="3" class="form-control" <% if(prop) {
-                                                                %>value="<%= prop.shift %>"<% } %> required><div class="invalid-feedback">Missing/Invalid input</div>
+                                                            <label for="allowBooking"><strong>Allow booking</strong>*</label>
+                                                            <select name="allowBooking" class="form-control" <% if(prop) { %> value="<%= prop.allowBooking %>" <% } %>>
+                                                                <option value="true">Yes</option>
+                                                                <option value="false">No</option>
+                                                            </select>
                                                         </div>
                                                     </div>
                                                     <div class="col-sm-6">
                                                         <div class="form-group">
-                                                            <label for="costpershift"><strong>Cost per shift</strong>
+                                                            <label for="costperhour"><strong>Cost per hour</strong>
                                                                 (in ₹)*</label>
-                                                            <input type="text" id="costpershift" name="costpershift"
+                                                            <input type="text" id="costperhour" name="costperhour"
                                                                 class="form-control" placeholder="25000" <% if(prop) {
-                                                                %>value="<%= prop.pricepershift %>"<% } %> required><div class="invalid-feedback">Missing/Invalid input</div>
+                                                                %>value="<%= prop.priceperhour %>"<% } %> required><div class="invalid-feedback">Missing/Invalid input</div>
                                                         </div>
                                                     </div>
                                                 </div>

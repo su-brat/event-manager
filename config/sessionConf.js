@@ -5,7 +5,7 @@ const sessionConfig = {
     secret: process.env.SESSION_SECRET,
     //secure: true,
     resave: false,
-    saveUninitialized: true,
+    saveUninitialized: false,
     cookie: {
         expires: Date.now() + weekinmillis(),
         maxAge: weekinmillis()

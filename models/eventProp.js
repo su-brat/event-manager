@@ -6,7 +6,7 @@ const ImageSchema = mongoose.Schema({
 });
 
 ImageSchema.virtual('thumbnail').get(function() {
-    return this.url.replace('/upload', '/upload/w_200');
+    return this.url.replace('/upload', '/upload/w_500');
 });
 
 const LocationSchema = mongoose.Schema({
@@ -44,13 +44,13 @@ const eventPropSchema = mongoose.Schema({
         type: Number,
         required: true
     },
-    shift: {
+    priceperhour: {
         type: Number,
         required: true
     },
-    pricepershift: {
-        type: Number,
-        required: true
+    allowBooking: {
+        type: String,
+        default: 'true'
     },
     functiontype: Array,
     description: String,
