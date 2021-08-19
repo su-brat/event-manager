@@ -74,7 +74,6 @@ router.get('/event-bookings/:userId', async (req, res) => {
     try {
         if(userId) {
             const bookings = await EventDetails.find({userId});
-            console.log(bookings);
             return res.json({ bookings: bookings.sort((a, b) => a.bookingDate<b.bookingDate?1:(
                 a.bookingDate>b.bookingDate?-1:0
             ))});
