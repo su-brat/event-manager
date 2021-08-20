@@ -1,3 +1,5 @@
+const MongoStore = require('connect-mongo');
+
 const weekinmillis = (weeks = 1) => 1000 * 60 * 60 * 24 * 7 * weeks;
 
 const sessionConfig = {
@@ -6,6 +8,7 @@ const sessionConfig = {
     //secure: true,
     resave: false,
     saveUninitialized: false,
+    store: MongoStore.create({ mongoUrl: process.env.DB_PATH }),
     cookie: {
         expires: Date.now() + weekinmillis(),
         maxAge: weekinmillis()

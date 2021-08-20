@@ -22,7 +22,7 @@ const sessionConfig = require('./config/sessionConf');
 
 const db = require('./services/dbInitClose');
 
-db.connect(process.env.DB_PATH);
+db.connect();
 
 const methodOverride = require('method-override');
 
