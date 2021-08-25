@@ -11,8 +11,10 @@ const Customer = require('../models/customer');
 
 const { inRange, sortByRange } = require('../services/filterByDist');
 
+const {CORS_ORIGIN} = require('../config/allowedOrigin');
+
 router.use(cors({
-    origin: 'http://localhost:3000',
+    origin: CORS_ORIGIN,
     methods: ['GET', 'OPTIONS', 'HEAD'],
     credentials: true
 }));
