@@ -56,15 +56,47 @@
                                                     <tr>
                                                         <th>Name</th>
                                                         <th>Contact</th>
-                                                        <th>Event Theme</th>
-                                                        <th>Date</th>
-                                                        <th>Shift</th>
-                                                        <th>Advance Received</th>
+                                                        <th>Occasion</th>
+                                                        <th>Start Date/Time</th>
+                                                        <th>End Date/Time</th>
+                                                        <th>Request Date/Time</th>
+                                                        <th>Status</th>
                                                         <th>Total Payment</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody>
-
+                                                    <% for (var i=0; i < events.length; i++) { %>
+                                                        <tr>
+                                                            <td>
+                                                                <%= events[i].customerName %>
+                                                            </td>
+                                                            <td>
+                                                                <%= events[i].customerPhone %> - <%= events[i].customerEmail %>
+                                                            </td>
+                                                            <td>
+                                                                <%= events[i].type %>
+                                                            </td>
+                                                            <td>
+                                                                <%= events[i].startDateAndTime %>
+                                                            </td>
+                                                            <td>
+                                                                <%= events[i].endDateAndTime %>
+                                                            </td>
+                                                            <td>
+                                                                <%= events[i].bookingDate %>
+                                                            </td>
+                                                            <td>
+                                                                <% if(events[i].approved) { %>
+                                                                    <span>Booked</span>
+                                                                <% } else { %>
+                                                                    <span>Pending</span>
+                                                                <% } %>
+                                                            </td>
+                                                            <td>
+                                                                <%= events[i].totalPayment %>
+                                                            </td>
+                                                        </tr>
+                                                    <% } %>
                                                 </tbody>
                                             </table>
                                         </div>

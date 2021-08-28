@@ -28,6 +28,7 @@ const methodOverride = require('method-override');
 
 const PropOwner = require('./models/propOwner');
 const EventProp = require('./models/eventProp');
+const EventDetails = require('./models/eventDetails');
 const BankAccount = require('./models/bankAccount');
 const Customer = require('./models/customer');
 
@@ -71,9 +72,57 @@ app.use(
   }),
 );
 
-app.use(helmet({
-    contentSecurityPolicy: false    //to enable undefined sources such as mapbox, cloudinary etc.
-}));
+app.use(helmet());
+
+const scriptSrcUrls = [
+    "https://stackpath.bootstrapcdn.com/",
+    "https://api.tiles.mapbox.com/",
+    "https://api.mapbox.com/",
+    "https://kit.fontawesome.com/",
+    "https://cdnjs.cloudflare.com/",
+    "https://cdn.jsdelivr.net",
+    "http://gc.kis.v2.scr.kaspersky-labs.com/"
+];
+const styleSrcUrls = [
+    "https://kit-free.fontawesome.com/",
+    "https://stackpath.bootstrapcdn.com/",
+    "https://api.mapbox.com/",
+    "https://api.tiles.mapbox.com/",
+    "https://fonts.googleapis.com/",
+    "https://use.fontawesome.com/",
+    "http://gc.kis.v2.scr.kaspersky-labs.com/"
+];
+const connectSrcUrls = [
+    "https://api.mapbox.com/",
+    "https://a.tiles.mapbox.com/",
+    "https://b.tiles.mapbox.com/",
+    "https://events.mapbox.com/",
+    "http://gc.kis.v2.scr.kaspersky-labs.com/"
+];
+const fontSrcUrls = [
+    "https://fonts.gstatic.com/"
+];
+
+app.use(
+    helmet.contentSecurityPolicy({
+        directives: {
+            defaultSrc: [],
+            connectSrc: ["'self'", ...connectSrcUrls],
+            scriptSrc: ["'unsafe-inline'", "'self'", ...scriptSrcUrls],
+            styleSrc: ["'self'", "'unsafe-inline'", ...styleSrcUrls],
+            workerSrc: ["'self'", "blob:"],
+            objectSrc: [],
+            imgSrc: [
+                "'self'",
+                "blob:",
+                "data:",
+                "https://res.cloudinary.com/cloud24x7/", //SHOULD MATCH YOUR CLOUDINARY ACCOUNT! 
+                "https://images.unsplash.com/",
+            ],
+            fontSrc: ["'self'", ...fontSrcUrls],
+        },
+    })
+);
 
 //to override POST request for DELETE, PUT, PATCH etc.
 app.use(methodOverride('_method'));
@@ -188,8 +237,25 @@ app.post('/login',
 
 app.use(checkOwner);
 
-app.get('/dashboard', (req, res) => {
-    res.render('dashboard');
+app.get('/dashboard', async (req, res) => {
+    try {
+        const prop = await EventProp.findOne({ ownerid: req.session.userId });
+        const events = await EventDetails.find({ propId: prop._id });
+        let upcomingEvents = events.filter(e => new Date(e.startDateAndTime) >= Date.now()).sort((a, b) => new Date(a.startDateAndTime) - new Date(b.startDateAndTime));
+        upcomingEvents = await Promise.all(upcomingEvents.map(async e => {
+            const customer = await Customer.findOne({ _id: e.userId });
+            return { ...e._doc, 
+                customerName: customer.name, 
+                customerEmail: customer.email, 
+                customerPhone: customer.phone 
+            };
+        }));
+        res.render('dashboard', {upcomingEvents});
+    } catch (err) {
+        console.log(err);
+        req.flash('error', err.message);
+        res.redirect('/login');
+    }
 });
 
 app.get('/profile', async (req, res) => {
@@ -295,8 +361,25 @@ app.post('/profile/bankaccount',
             res.redirect('/profile');
         });
 
-app.get('/bookings', (req, res) => {
-    res.render('bookings');
+app.get('/bookings', async (req, res) => {
+    try {
+        const prop = await EventProp.findOne({ ownerid: req.session.userId });
+        let events = await EventDetails.find({ propId: prop._id });
+        events = await Promise.all(events.map(async e => {
+            const customer = await Customer.findOne({ _id: e.userId });
+            return { ...e._doc, 
+                customerName: customer.name, 
+                customerEmail: customer.email, 
+                customerPhone: customer.phone,
+                totalPayment: prop.priceperhour * e.bookHours,
+            };
+        }));
+        res.render('bookings', { events });
+    } catch(err) {
+        console.log(err);
+        req.flash('error', err.message);
+        res.redirect('/');
+    }
 });
 
 app.post('/logout', (req, res) => {
