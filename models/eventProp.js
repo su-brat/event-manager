@@ -5,10 +5,6 @@ const ImageSchema = mongoose.Schema({
     filename: String
 });
 
-ImageSchema.virtual('thumbnail').get(function() {
-    return this.url.replace('/upload', '/upload/w_500');
-});
-
 const LocationSchema = mongoose.Schema({
     longitude: Number,
     latitude: Number,

@@ -62,7 +62,7 @@ router.get('/props', async (req, res) => {
         props = props.filter(prop => prop.allowBooking===available);
     }
     res.json({ props: props.map(prop => {
-        return { ...{...prop}._doc, primaryImage: prop.images.length>0?prop.images[0].thumbnail:'' }
+        return { ...{...prop}._doc, primaryImage: prop.images.length>0?prop.images[0].url:'' };
     })});
 });
 
