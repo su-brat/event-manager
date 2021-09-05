@@ -14,4 +14,6 @@ SERVER_DOMAIN=value2 | http://localhost:3001
 MAPBOX_KEY=value3
 ```
 
-_(Use the same keys with real values.)_ 4. Run `mongoDB` daemon to be able to connect to database. 5. Run `node app.js`. 6. Open browser and query `localhost:3000/<a route present inside the app.js file>`.
+_(Use the same keys with real values.)_
+
+4. Run `mongoDB` daemon to be able to connect to database. 5. Run `npm run` or `npm start`.
