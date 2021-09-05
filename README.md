@@ -8,12 +8,10 @@
    Inside `.env` file...
 
 ```
-DB_PATH=mongodb://localhost:27017/<database_name>
+DB_PATH=value0 | mongodb://localhost:27017/<database_name>
 SESSION_SECRET=value1
-CLOUDINARY_CLOUD_NAME=value2
-CLOUDINARY_KEY=value3
-CLOUDINARY_SECRET=value4
-MAPBOX_KEY=value5
+SERVER_DOMAIN=value2 | http://localhost:3001
+MAPBOX_KEY=value3
 ```
 
 _(Use the same keys with real values.)_ 4. Run `mongoDB` daemon to be able to connect to database. 5. Run `node app.js`. 6. Open browser and query `localhost:3000/<a route present inside the app.js file>`.

@@ -11,8 +11,8 @@ const connect = async () => {
         });
 }
 
-
 module.exports = {
+    mongoose,
     connect: connect,
     close: mongoose.connection.close
 }

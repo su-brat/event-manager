@@ -13,6 +13,17 @@ const { inRange, sortByRange } = require('../services/filterByDist');
 
 const {CORS_ORIGIN} = require('../config/allowedOrigin');
 
+const {mongoose} = require('../services/dbInitClose');
+const Grid = require('gridfs-stream');
+
+let gfs;
+
+mongoose.connection.once('open', function () {
+    gfs = Grid(mongoose.connection.db, mongoose.mongo);
+    gfs.collection('uploads');
+});
+
+
 router.use(cors({
     origin: CORS_ORIGIN,
     methods: ['GET', 'OPTIONS', 'HEAD'],
@@ -53,6 +64,16 @@ router.get('/props', async (req, res) => {
     res.json({ props: props.map(prop => {
         return { ...{...prop}._doc, primaryImage: prop.images.length>0?prop.images[0].thumbnail:'' }
     })});
+});
+
+router.get('/image/props/:filename', async (req, res) => {
+    try {
+        const file = await gfs.files.findOne({filename: req.params.filename});
+        const readstream = await gfs.createReadStream(file.filename);
+        readstream.pipe(res);
+    } catch (err) {
+        res.status(404).json({ err: err });
+    }
 });
 
 router.get('/event-bookings', async (req, res) => {

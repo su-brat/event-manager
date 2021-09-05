@@ -14,15 +14,23 @@ const mongoSanitize = require('express-mongo-sanitize');
 const config = require('./config/envConf')
 config()
 
-const { storage, cloudinary } = require('./config/cloudinaryConf');
+const storage = require('./config/fileStorageConf');
 const multer = require('multer');
 const upload = multer({ storage: storage });
 
 const sessionConfig = require('./config/sessionConf');
 
-const db = require('./services/dbInitClose');
+const {connect, mongoose, close} = require('./services/dbInitClose');
 
-db.connect();
+let gfs;
+connect();
+
+const Grid = require('gridfs-stream');
+
+mongoose.connection.once('open', function () {
+    gfs = Grid(mongoose.connection.db, mongoose.mongo);
+    gfs.collection('uploads');
+});
 
 const methodOverride = require('method-override');
 
@@ -116,7 +124,6 @@ app.use(
                 "'self'",
                 "blob:",
                 "data:",
-                "https://res.cloudinary.com/cloud24x7/", //SHOULD MATCH YOUR CLOUDINARY ACCOUNT! 
                 "https://images.unsplash.com/",
             ],
             fontSrc: ["'self'", ...fontSrcUrls],
@@ -178,7 +185,7 @@ app.put('/register',
             try {
                 if (req.body.password == req.body.password_repeat) {
                     const pwdigest = await hashedpwd(req.body.password);
-                    user = new PropOwner({
+                    const user = new PropOwner({
                         fname: req.body.first_name.toUpperCase(),
                         lname: req.body.last_name.toUpperCase(),
                         email: req.body.email.toLowerCase(),
@@ -214,7 +221,7 @@ app.post('/login',
         async (req, res) => {
             try {
                 const pwd = req.body.password;
-                user = await PropOwner.findOne({ email: req.body.email.toLowerCase() });
+                const user = await PropOwner.findOne({ email: req.body.email.toLowerCase() });
                 if (user) {
                     const verified = await authenticate(user, pwd);
                     if (!verified)
@@ -240,16 +247,24 @@ app.use(checkOwner);
 app.get('/dashboard', async (req, res) => {
     try {
         const prop = await EventProp.findOne({ ownerid: req.session.userId });
-        const events = await EventDetails.find({ propId: prop._id });
-        let upcomingEvents = events.filter(e => new Date(e.startDateAndTime) >= Date.now()).sort((a, b) => new Date(a.startDateAndTime) - new Date(b.startDateAndTime));
-        upcomingEvents = await Promise.all(upcomingEvents.map(async e => {
-            const customer = await Customer.findOne({ _id: e.userId });
-            return { ...e._doc, 
-                customerName: customer.name, 
-                customerEmail: customer.email, 
-                customerPhone: customer.phone 
-            };
-        }));
+        let upcomingEvents = [];
+        if (prop) {
+            const events = await EventDetails.find({ propId: prop._id });
+            if (events) {
+                upcomingEvents = events.filter(e => new Date(e.startDateAndTime) >= Date.now()).sort((a, b) => new Date(a.startDateAndTime) - new Date(b.startDateAndTime));
+                upcomingEvents = await Promise.all(upcomingEvents.map(async e => {
+                    const customer = await Customer.findOne({ _id: e.userId });
+                    if (customer)
+                        return { ...e._doc, 
+                            customerName: customer.name, 
+                            customerEmail: customer.email, 
+                            customerPhone: customer.phone 
+                        };
+                    else
+                        return e;
+                }));
+            }
+        }
         res.render('dashboard', {upcomingEvents});
     } catch (err) {
         console.log(err);
@@ -294,12 +309,12 @@ app.post('/profile/owner',
         });
 
 app.post('/profile/prop',
-        upload.array('images'),
+        upload.array('images', 5),
         propertyFormValidation,
         inputValidationResult,
         async (req, res) => {
             console.log(req.body.allowBooking);
-            const newimages = req.files.map(file => ({ url: file.path, filename: file.filename }));
+            const newimages = req.files.map(file => ({ url: `${process.env.SERVER_DOMAIN}/api/image/props/${file.filename}`, filename: file.filename }));
             try {
                 const ftype = res.locals.proptypes.filter(type => req.body[type]);
                 
@@ -318,7 +333,7 @@ app.post('/profile/prop',
                 const deleteImages = [];
                 for (let image of update.images) {
                     if (req.body[image.filename]) {
-                        await cloudinary.uploader.destroy(image.filename);
+                        await gfs.files.deleteOne({ filename: image.filename });
                         deleteImages.push(image.filename);
                     }
                 }
@@ -328,13 +343,13 @@ app.post('/profile/prop',
                     const removeImages = update.images.slice(5).map(image => image.filename);
                     update.images = update.images.slice(0, 5);
                     for (let imagename of removeImages)
-                        await cloudinary.uploader.destroy(imagename);
+                        await gfs.files.deleteOne({ filename: imagename });
                 }
                 await update.save();
                 req.flash('success', 'Updated successfully.')
             } catch (err) {
                 for (let image of newimages) {
-                    await cloudinary.uploader.destroy(image.filename);
+                    await gfs.files.deleteOne({ filename: image.filename });
                 }
                 console.log(err);
                 req.flash('error', err.message);
@@ -364,16 +379,25 @@ app.post('/profile/bankaccount',
 app.get('/bookings', async (req, res) => {
     try {
         const prop = await EventProp.findOne({ ownerid: req.session.userId });
-        let events = await EventDetails.find({ propId: prop._id });
-        events = await Promise.all(events.map(async e => {
-            const customer = await Customer.findOne({ _id: e.userId });
-            return { ...e._doc, 
-                customerName: customer.name, 
-                customerEmail: customer.email, 
-                customerPhone: customer.phone,
-                totalPayment: prop.priceperhour * e.bookHours,
-            };
-        }));
+        let events = []
+        if (prop) {
+            events = await EventDetails.find({ propId: prop._id });
+            if (events) {
+                events = await Promise.all(events.map(async e => {
+                    const customer = await Customer.findOne({ _id: e.userId });
+                    if (customer)
+                        return { ...e._doc, 
+                            customerName: customer.name, 
+                            customerEmail: customer.email, 
+                            customerPhone: customer.phone,
+                            totalPayment: prop.priceperhour * e.bookHours,
+                        };
+                    else
+                        return e;
+                }));
+                events = events.sort((a, b) => new Date(b.bookingDate) - new Date(a.bookingDate));
+            }
+        }
         res.render('bookings', { events });
     } catch(err) {
         console.log(err);
@@ -427,7 +451,7 @@ app.delete('/account/delete', async (req, res) => {
             console.log('Deleting account...');
             for (let prop of props) {
                 for (let image of prop.images)
-                    await cloudinary.uploader.destroy(image.filename);
+                    await gfs.files.deleteOne({ filename: image.filename });
             }
             await PropOwner.deleteOne({ _id: userId });
             await EventProp.deleteMany({ ownerid: userId });
@@ -449,4 +473,3 @@ app.delete('/account/delete', async (req, res) => {
 app.listen(3001, () => {
     console.log('Listening to port 3001...');
 });
-
