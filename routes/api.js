@@ -10,6 +10,9 @@ const Customer = require('../models/customer');
 
 const { inRange, sortByRange } = require('../services/filterByDist');
 
+const cors = require("cors");
+const CORS_ORIGIN = [process.env.CLIENT_DOMAIN, 'http://localhost:3000/'];
+
 const {mongoose} = require('../services/dbInitClose');
 const Grid = require('gridfs-stream');
 
@@ -19,6 +22,12 @@ mongoose.connection.once('open', function () {
     gfs = Grid(mongoose.connection.db, mongoose.mongo);
     gfs.collection('uploads');
 });
+
+router.use(cors({
+    origin: CORS_ORIGIN,
+    methods: ['GET', 'OPTIONS', 'HEAD'],
+    credentials: true
+}));
 
 router.get('/owners/:id', async (req, res) => {
     const { id } = req.params;
