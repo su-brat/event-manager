@@ -1,6 +1,5 @@
 const express = require('express');
 const router = express.Router();
-const cors = require("cors");
 
 const PropOwner = require('../models/propOwner');
 const EventProp = require('../models/eventProp');
@@ -9,16 +8,6 @@ const Customer = require('../models/customer');
 
 const {hashedpwd, authenticate} = require("../services/pwdServices");
 const {checkCustomer} = require('../middlewares/checkLocalUser');
-
-const {CORS_ORIGIN} = require('../config/allowedOrigin');
-
-
-
-router.use(cors({
-    origin: CORS_ORIGIN,
-    methods: ['POST', 'PUT', 'GET', 'OPTIONS', 'HEAD', 'DELETE'],
-    credentials: true
-}));
 
 router.post('/register', async (req, res) => {
     try {

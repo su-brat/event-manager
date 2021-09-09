@@ -11,9 +11,11 @@
 DB_PATH=value0 | mongodb://localhost:27017/<database_name>
 SESSION_SECRET=value1
 SERVER_DOMAIN=value2 | http://localhost:3001
-MAPBOX_KEY=value3
+CLIENT_DOMAIN=value3 | http://localhost:3000
+MAPBOX_KEY=value4
 ```
 
 _(Use the same keys with real values.)_
 
-4. Run `mongoDB` daemon to be able to connect to database. 5. Run `npm run` or `npm start`.
+4. Run `mongoDB` daemon to be able to connect to database.
+5. Run `npm run` or `npm start`.
