@@ -56,9 +56,6 @@ const reqInfo = require('./middlewares/debugMsg')
 const { registerFormValidation, loginFormValidation, ownerProfileFormValidation, propertyFormValidation, bankAccountFormValidation, accountFormValidation } = require('./services/inputValidation');
 const inputValidationResult = require('./middlewares/valResult');
 
-const cors = require("cors");
-const CORS_ORIGIN = [process.env.CLIENT_DOMAIN, 'http://localhost:3000/'];
-
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, '/views'));
 
@@ -70,17 +67,6 @@ app.use(express.urlencoded({ extended: true }));
 
 //to parse and fetch json data
 app.use(express.json());
-
-app.use(cors({
-    origin: CORS_ORIGIN,
-    methods: ['GET', 'OPTIONS', 'HEAD', 'POST', 'PUT', 'DELETE'],
-    credentials: true
-}));
-
-app.use((req, res, next) => {
-  res.header('Access-Control-Allow-Origin', '*');
-  next();
-});
 
 //remove or sanitize $ or . to prevent noSQL injection
 app.use(mongoSanitize());
