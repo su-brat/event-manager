@@ -57,7 +57,7 @@ const { registerFormValidation, loginFormValidation, ownerProfileFormValidation,
 const inputValidationResult = require('./middlewares/valResult');
 
 const cors = require("cors");
-const CORS_ORIGIN = [process.env.CLIENT_DOMAIN, 'http://localhost:3000/', 'https://festan.herokuapp.com/'];
+const CORS_ORIGIN = [process.env.CLIENT_DOMAIN, 'http://localhost:3000/*', 'https://festan.herokuapp.com/*'];
 
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, '/views'));
