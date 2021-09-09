@@ -57,7 +57,7 @@ const { registerFormValidation, loginFormValidation, ownerProfileFormValidation,
 const inputValidationResult = require('./middlewares/valResult');
 
 const cors = require("cors");
-const CORS_ORIGIN = [process.env.CLIENT_DOMAIN, 'http://10.0.2.2:3000'];
+const CORS_ORIGIN = [process.env.CLIENT_DOMAIN];
 
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, '/views'));
@@ -478,7 +478,7 @@ app.delete('/account/delete', async (req, res) => {
     }
 })
 
-//to connect and listen to port 3000
-app.listen(3001, () => {
-    console.log('Listening to port 3001...');
+//to connect and listen to port 8080
+app.listen(process.env.LISTEN_PORT, () => {
+    console.log('Listening to port...');
 });
