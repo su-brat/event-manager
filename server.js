@@ -479,6 +479,6 @@ app.delete('/account/delete', async (req, res) => {
 })
 
 //to connect and listen to port 8080
-app.listen(process.env.LISTEN_PORT, () => {
+app.listen(process.env.PORT, () => {
     console.log('Listening to port...');
 });

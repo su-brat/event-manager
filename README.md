@@ -10,7 +10,7 @@
 ```
 DB_PATH=value0 | mongodb://localhost:27017/<database_name>
 SESSION_SECRET=value1
-LISTEN_PORT=value2 | 3001 (dev) | 8080 (deploy)
+PORT=value2 | 3001 (dev) | 8080 (deploy)
 SERVER_DOMAIN=value3 | http://localhost:3001
 CLIENT_DOMAIN=value4 | http://localhost:3000
 MAPBOX_KEY=value5
