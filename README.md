@@ -18,4 +18,4 @@ MAPBOX_KEY=value4
 _(Use the same keys with real values.)_
 
 4. Run `mongoDB` daemon to be able to connect to database.
-5. Run `npm run` or `npm start`.
+5. Run `npm start` or `npm run`.
