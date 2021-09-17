@@ -76,8 +76,8 @@ app.use(
   mongoSanitize({
     onSanitize: ({ req, key }) => {
       console.warn(`This request[${key}] is sanitized`, req);
-    },
-  }),
+    }
+  })
 );
 
 app.use(helmet());
@@ -104,8 +104,7 @@ const connectSrcUrls = [
     "https://api.mapbox.com/",
     "https://a.tiles.mapbox.com/",
     "https://b.tiles.mapbox.com/",
-    "https://events.mapbox.com/",
-    "http://gc.kis.v2.scr.kaspersky-labs.com/"
+    "https://events.mapbox.com/"
 ];
 const fontSrcUrls = [
     "https://fonts.gstatic.com/"
