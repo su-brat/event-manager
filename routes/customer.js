@@ -10,10 +10,9 @@ const {hashedpwd, authenticate} = require("../services/pwdServices");
 const {checkCustomer} = require('../middlewares/checkLocalUser');
 
 const cors = require("cors");
-const CORS_ORIGIN = [process.env.CLIENT_DOMAIN, 'http://localhost:3000/'];
 
 router.use(cors({
-    origin: CORS_ORIGIN,
+    origin: true,
     methods: ['GET', 'OPTIONS', 'HEAD', 'POST', 'PUT', 'DELETE'],
     credentials: true
 }));
